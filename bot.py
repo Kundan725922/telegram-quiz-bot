@@ -1,20 +1,27 @@
 """
-GATE CSE Quiz Telegram Bot - Working Version
-pip install python-telegram-bot --upgrade
+Enhanced GATE CSE Quiz Telegram Bot with Leaderboard & Advanced Features
+Deploy on Render.com for 24/7 operation
 """
 
 import logging
+import os
+import asyncio
+from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 import random
+from collections import defaultdict
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# IMPORTANT: Replace with your token from @BotFather
-BOT_TOKEN = '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII'
+# Get token from environment variable (for deployment) or use default
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII')
 
-# Question Bank
+# Global leaderboard storage (in production, use database)
+leaderboard_data = defaultdict(lambda: {'total_score': 0, 'total_questions': 0, 'tests_taken': 0, 'best_score': 0, 'username': ''})
+
+# Question Bank (Your existing questions)
 QUESTIONS = {
     'algorithms': [
         {'q': 'What is the time complexity of building a heap of n elements?', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 0},
@@ -69,16 +76,39 @@ QUESTIONS = {
 user_sessions = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = """🎓 *Welcome to GATE CSE Quiz Bot!*
+    user = update.effective_user
+    text = f"""🎓 *Welcome {user.first_name} to GATE CSE Quiz Bot!*
+
+🆕 *NEW FEATURES:*
+🏆 Leaderboard Rankings
+⏱️ Timed Quiz Mode
+📊 Custom Quiz Length
+🎯 Performance Analytics
 
 📚 *Commands:*
-/quiz - Quick 5-question quiz
-/topics - Choose topic
-/score - View performance
-/help - Get help
+/quiz - Start quiz with options
+/leaderboard - Top 10 rankers
+/mystats - Your statistics
+/topics - Choose specific topic
+/help - Complete guide
 
-Ready to ace GATE 2026? 🚀"""
+Ready to compete? 🚀"""
     await update.message.reply_text(text, parse_mode='Markdown')
+
+async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show quiz mode selection"""
+    keyboard = [
+        [InlineKeyboardButton("⚡ Quick (5Q)", callback_data='mode_quick_5')],
+        [InlineKeyboardButton("📝 Standard (10Q)", callback_data='mode_standard_10')],
+        [InlineKeyboardButton("🎯 Full Test (20Q)", callback_data='mode_full_20')],
+        [InlineKeyboardButton("⏱️ Timed Challenge (10Q - 5min)", callback_data='mode_timed_10')],
+        [InlineKeyboardButton("🔥 Speed Round (15Q - 7min)", callback_data='mode_timed_15')]
+    ]
+    await update.message.reply_text(
+        "🎮 *Select Quiz Mode:*\n\nChoose difficulty and type:",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
 
 async def topics(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
@@ -88,17 +118,73 @@ async def topics(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("🔤 TOC", callback_data='topic_toc')],
         [InlineKeyboardButton("🎲 Random Mix", callback_data='topic_random')]
     ]
-    await update.message.reply_text('Choose topic:', reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text('📚 *Choose Topic:*', reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def mode_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle quiz mode selection"""
+    query = update.callback_query
+    await query.answer()
     user_id = update.effective_user.id
+    mode = query.data.replace('mode_', '')
+    
+    # Parse mode
+    if 'timed' in mode:
+        is_timed = True
+        num_q = int(mode.split('_')[1])
+        time_limit = 300 if num_q == 10 else 420  # 5 or 7 minutes
+    else:
+        is_timed = False
+        num_q = int(mode.split('_')[1])
+        time_limit = None
+    
+    # Select questions
     all_q = []
     for qs in QUESTIONS.values():
         all_q.extend(qs)
-    selected = random.sample(all_q, 5)
-    user_sessions[user_id] = {'questions': selected, 'current': 0, 'score': 0, 'answers': []}
-    await update.message.reply_text("🎯 Starting quiz! 5 questions\n\nGood luck! 💪")
-    await send_question(update.message, context, user_id)
+    selected = random.sample(all_q, min(num_q, len(all_q)))
+    
+    user_sessions[user_id] = {
+        'questions': selected,
+        'current': 0,
+        'score': 0,
+        'answers': [],
+        'is_timed': is_timed,
+        'time_limit': time_limit,
+        'start_time': datetime.now(),
+        'mode': mode
+    }
+    
+    text = f"🎯 *Quiz Started!*\n\n"
+    text += f"📝 Questions: {num_q}\n"
+    if is_timed:
+        text += f"⏱️ Time Limit: {time_limit//60} minutes\n"
+    text += f"\nGood luck! 💪"
+    
+    await query.edit_message_text(text, parse_mode='Markdown')
+    
+    # Start timer for timed mode
+    if is_timed:
+        asyncio.create_task(quiz_timer(user_id, context, time_limit))
+    
+    await send_question(query.message, context, user_id)
+
+async def quiz_timer(user_id: int, context: ContextTypes.DEFAULT_TYPE, time_limit: int):
+    """Timer for timed quizzes"""
+    await asyncio.sleep(time_limit)
+    
+    if user_id in user_sessions:
+        session = user_sessions[user_id]
+        if session['is_timed'] and session['current'] < len(session['questions']):
+            # Time's up!
+            try:
+                await context.bot.send_message(
+                    chat_id=user_id,
+                    text="⏰ *Time's Up!*\n\nQuiz ended. Here are your results:",
+                    parse_mode='Markdown'
+                )
+                await finalize_quiz(user_id, context)
+            except Exception as e:
+                logger.error(f"Timer error: {e}")
 
 async def topic_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -114,19 +200,39 @@ async def topic_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         selected = QUESTIONS.get(topic, []).copy()
         random.shuffle(selected)
-        selected = selected[:5]
+        selected = selected[:10]
     
-    user_sessions[user_id] = {'questions': selected, 'current': 0, 'score': 0, 'answers': []}
-    await query.edit_message_text(f"✅ Starting quiz! {len(selected)} questions")
+    user_sessions[user_id] = {
+        'questions': selected,
+        'current': 0,
+        'score': 0,
+        'answers': [],
+        'is_timed': False,
+        'start_time': datetime.now(),
+        'mode': f'topic_{topic}'
+    }
+    
+    await query.edit_message_text(f"✅ Starting {topic.replace('_', ' ').title()} quiz! {len(selected)} questions")
     await send_question(query.message, context, user_id)
 
 async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: int):
     session = user_sessions.get(user_id)
     if not session:
         return
+    
     q = session['questions'][session['current']]
-    text = f"❓ *Q{session['current']+1}/{len(session['questions'])}*\n\n{q['q']}\n\n"
+    
+    # Calculate time remaining for timed mode
+    time_info = ""
+    if session.get('is_timed'):
+        elapsed = (datetime.now() - session['start_time']).total_seconds()
+        remaining = session['time_limit'] - elapsed
+        if remaining > 0:
+            time_info = f"⏱️ Time: {int(remaining//60)}:{int(remaining%60):02d}\n\n"
+    
+    text = f"{time_info}❓ *Q{session['current']+1}/{len(session['questions'])}*\n\n{q['q']}\n\n"
     keyboard = [[InlineKeyboardButton(f"{chr(65+i)}. {opt}", callback_data=f'answer_{i}')] for i, opt in enumerate(q['options'])]
+    
     await message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
 async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -135,10 +241,19 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     
     if user_id not in user_sessions:
-        await query.edit_message_text("Session expired. Use /quiz")
+        await query.edit_message_text("⚠️ Session expired. Use /quiz to start again")
         return
     
     session = user_sessions[user_id]
+    
+    # Check if time expired
+    if session.get('is_timed'):
+        elapsed = (datetime.now() - session['start_time']).total_seconds()
+        if elapsed > session['time_limit']:
+            await query.edit_message_text("⏰ Time expired!")
+            await finalize_quiz(user_id, context)
+            return
+    
     q = session['questions'][session['current']]
     user_ans = int(query.data.replace('answer_', ''))
     correct = q['answer']
@@ -157,89 +272,186 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if session['current'] < len(session['questions']):
         await send_question(query.message, context, user_id)
     else:
-        await show_results(query.message, context, user_id)
+        await finalize_quiz(user_id, context, query.message)
 
-async def show_results(message, context: ContextTypes.DEFAULT_TYPE, user_id: int):
+async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, message=None):
+    """Finalize quiz and show results with leaderboard"""
     session = user_sessions.get(user_id)
     if not session:
         return
     
     score = session['score']
     total = len(session['questions'])
-    pct = (score/total)*100
+    pct = (score/total)*100 if total > 0 else 0
     
-    text = f"🎯 *Quiz Complete!*\n\n📊 Score: {score}/{total} ({pct:.0f}%)\n\n"
-    if pct >= 80:
-        text += "🌟 Excellent!"
+    # Calculate time taken
+    time_taken = (datetime.now() - session['start_time']).total_seconds()
+    time_str = f"{int(time_taken//60)}:{int(time_taken%60):02d}"
+    
+    # Update leaderboard
+    user = await context.bot.get_chat(user_id)
+    username = user.username or user.first_name
+    
+    leaderboard_data[user_id]['username'] = username
+    leaderboard_data[user_id]['total_score'] += score
+    leaderboard_data[user_id]['total_questions'] += total
+    leaderboard_data[user_id]['tests_taken'] += 1
+    leaderboard_data[user_id]['best_score'] = max(leaderboard_data[user_id]['best_score'], pct)
+    
+    text = f"🎯 *Quiz Complete!*\n\n"
+    text += f"📊 Score: {score}/{total} ({pct:.1f}%)\n"
+    text += f"⏱️ Time: {time_str}\n\n"
+    
+    if pct >= 90:
+        text += "🌟 Outstanding! You're a GATE expert!\n"
+    elif pct >= 75:
+        text += "🎉 Excellent work! Keep it up!\n"
     elif pct >= 60:
-        text += "👍 Good job!"
+        text += "👍 Good job! Practice more!\n"
     else:
-        text += "📚 Keep practicing!"
+        text += "📚 Keep learning! You'll improve!\n"
     
-    text += "\n\n"
+    text += "\n"
     for i, ans in enumerate(session['answers']):
         text += "✅" if ans else "❌"
-        text += " "
+        if (i+1) % 5 == 0:
+            text += "\n"
     
-    text += "\n\n/quiz to try again"
+    # Show top 5 leaderboard
+    text += "\n\n🏆 *TOP 5 LEADERBOARD*\n\n"
+    top_users = sorted(leaderboard_data.items(), key=lambda x: x[1]['best_score'], reverse=True)[:5]
     
+    for i, (uid, data) in enumerate(top_users, 1):
+        medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "🏅"
+        text += f"{medal} {data['username']}: {data['best_score']:.1f}% (Tests: {data['tests_taken']})\n"
+    
+    text += "\n/quiz - Try again\n/leaderboard - Full rankings"
+    
+    # Save to history
     if 'history' not in context.user_data:
         context.user_data['history'] = []
-    context.user_data['history'].append({'score': score, 'total': total, 'pct': pct})
+    context.user_data['history'].append({'score': score, 'total': total, 'pct': pct, 'time': time_str})
     
-    await message.reply_text(text, parse_mode='Markdown')
+    if message:
+        await message.reply_text(text, parse_mode='Markdown')
+    else:
+        await context.bot.send_message(chat_id=user_id, text=text, parse_mode='Markdown')
+    
     del user_sessions[user_id]
 
-async def score_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    history = context.user_data.get('history', [])
-    if not history:
-        await update.message.reply_text("📊 No history. Start with /quiz")
+async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show full leaderboard"""
+    if not leaderboard_data:
+        await update.message.reply_text("📊 No rankings yet. Start with /quiz!")
         return
     
-    text = "📈 *Performance History*\n\n"
-    for i, r in enumerate(history[-10:], 1):
-        text += f"{i}. {r['score']}/{r['total']} ({r['pct']:.0f}%)\n"
+    text = "🏆 *GLOBAL LEADERBOARD - TOP 10*\n\n"
+    top_users = sorted(leaderboard_data.items(), key=lambda x: x[1]['best_score'], reverse=True)[:10]
     
-    avg = sum(r['pct'] for r in history) / len(history)
-    text += f"\n*Average: {avg:.0f}%*"
+    for i, (uid, data) in enumerate(top_users, 1):
+        medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"{i}."
+        avg_score = (data['total_score'] / data['total_questions'] * 100) if data['total_questions'] > 0 else 0
+        text += f"{medal} *{data['username']}*\n"
+        text += f"   Best: {data['best_score']:.1f}% | Avg: {avg_score:.1f}%\n"
+        text += f"   Tests: {data['tests_taken']}\n\n"
+    
+    await update.message.reply_text(text, parse_mode='Markdown')
+
+async def mystats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show user statistics"""
+    user_id = update.effective_user.id
+    user_data = leaderboard_data.get(user_id)
+    
+    if not user_data or user_data['tests_taken'] == 0:
+        await update.message.reply_text("📊 No stats yet. Start with /quiz!")
+        return
+    
+    avg_score = (user_data['total_score'] / user_data['total_questions'] * 100) if user_data['total_questions'] > 0 else 0
+    
+    text = f"📊 *Your Statistics*\n\n"
+    text += f"👤 User: {user_data['username']}\n"
+    text += f"🎯 Best Score: {user_data['best_score']:.1f}%\n"
+    text += f"📈 Average Score: {avg_score:.1f}%\n"
+    text += f"📝 Tests Taken: {user_data['tests_taken']}\n"
+    text += f"✅ Total Correct: {user_data['total_score']}/{user_data['total_questions']}\n\n"
+    
+    # Recent history
+    history = context.user_data.get('history', [])
+    if history:
+        text += "*Recent Performance:*\n"
+        for i, r in enumerate(history[-5:], 1):
+            text += f"{i}. {r['score']}/{r['total']} ({r['pct']:.0f}%) - {r.get('time', 'N/A')}\n"
+    
     await update.message.reply_text(text, parse_mode='Markdown')
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = """📖 *Help*
+    text = """📖 *Complete Guide*
 
-/start - Welcome
-/quiz - Quick 5Q quiz
-/topics - Choose topic
-/score - View history
-/help - This message
+*🎮 Quiz Modes:*
+⚡ Quick - 5 questions, no timer
+📝 Standard - 10 questions
+🎯 Full Test - 20 questions  
+⏱️ Timed - Race against clock
 
-*How to use:*
-1. Start quiz
-2. Tap answer
-3. Get instant feedback
-4. See final score
+*🏆 Features:*
+• Real-time leaderboard
+• Performance tracking
+• Instant feedback
+• Speed challenges
+• Topic selection
 
-Good luck! 🎓"""
+*📊 Commands:*
+/quiz - Start quiz
+/leaderboard - Top 10 rankers
+/mystats - Your statistics
+/topics - Choose specific topic
+/help - This guide
+
+*💡 Tips:*
+• Aim for 80%+ for excellence
+• Try timed mode for challenge
+• Check leaderboard often
+• Practice regularly
+
+Good luck! 🚀"""
     await update.message.reply_text(text, parse_mode='Markdown')
 
 def main():
-    if BOT_TOKEN == 'YOUR_BOT_TOKEN_HERE':
-        print("❌ ERROR: Set your bot token!")
-        print("Edit bot.py and replace YOUR_BOT_TOKEN_HERE")
+    """Main function - optimized for deployment"""
+    if not BOT_TOKEN or BOT_TOKEN == 'YOUR_BOT_TOKEN_HERE':
+        print("❌ ERROR: Set BOT_TOKEN environment variable!")
         return
     
     app = Application.builder().token(BOT_TOKEN).build()
+    
+    # Command handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("quiz", quiz))
     app.add_handler(CommandHandler("topics", topics))
-    app.add_handler(CommandHandler("score", score_history))
+    app.add_handler(CommandHandler("leaderboard", leaderboard))
+    app.add_handler(CommandHandler("mystats", mystats))
     app.add_handler(CommandHandler("help", help_command))
+    
+    # Callback handlers
+    app.add_handler(CallbackQueryHandler(mode_selected, pattern='^mode_'))
     app.add_handler(CallbackQueryHandler(topic_selected, pattern='^topic_'))
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^answer_'))
     
     print("🤖 Bot starting...")
     print("✅ Running! Press Ctrl+C to stop")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    # Use webhook for production, polling for local
+    if os.environ.get('RENDER'):
+        # Production mode (Render)
+        port = int(os.environ.get('PORT', 8080))
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            webhook_url=f"{os.environ.get('RENDER_EXTERNAL_URL')}/{BOT_TOKEN}"
+        )
+    else:
+        # Local development mode
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
     main()
