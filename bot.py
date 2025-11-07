@@ -40,6 +40,7 @@ user_sessions = {} # Active quiz sessions
 # --- Question Bank (Retained) ---
 QUESTIONS = {
     'algorithms': [
+        # --- Original Questions ---
         {'q': 'What is the time complexity of building a heap of n elements?', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 0},
         {'q': 'Which sorting algorithm is NOT stable?', 'options': ['Merge Sort', 'Quick Sort', 'Insertion Sort', 'Bubble Sort'], 'answer': 1},
         {'q': 'Dijkstra algorithm does NOT work correctly with:', 'options': ['Directed graphs', 'Undirected graphs', 'Negative edge weights', 'Weighted graphs'], 'answer': 2},
@@ -49,7 +50,37 @@ QUESTIONS = {
         {'q': 'Best case time complexity of Quick Sort is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 1},
         {'q': 'Binary Search works only on:', 'options': ['Sorted arrays', 'Unsorted arrays', 'Linked lists', 'Any structure'], 'answer': 0},
         {'q': 'Time complexity of Merge Sort is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(2^n)'], 'answer': 1},
-        {'q': 'Kruskal algorithm uses which data structure?', 'options': ['Priority Queue', 'Union-Find', 'Stack', 'Queue'], 'answer': 1}
+        {'q': 'Kruskal algorithm uses which data structure?', 'options': ['Priority Queue', 'Union-Find', 'Stack', 'Queue'], 'answer': 1},
+        # --- Questions from PDF Files (DPP 01 & 02) ---
+        {
+            'q': 'Sort the functions in ascending order of asymptotic(big-O) complexity:\nf₁(n) = n, f₂(n) = 80, f₃(n) = n^(logn), f₄(n) = log(log²n), f₅(n) = (logn)^(logn)',
+            'options': ['f₂(n), f₄(n), f₁(n), f₅(n), f₃(n)', 'f₂(n), f₁(n), f₄(n), f₅(n), f₃(n)', 'f₂(n), f₁(n), f₄(n), f₃(n), f₅(n)', 'f₄(n), f₁(n), f₄(n), f₃(n), f₂(n)'],
+            'answer': 0 #
+        },
+        {
+            'q': 'Which of the following asymptotic notation is transitive but not reflexive?',
+            # Big Oh and Big Omega are reflexive. Small Oh and Small Omega are not reflexive.
+            'options': ['Big Oh (O)', 'Big Omega (Ω)', 'Small Oh (o)', 'Big Theta (Θ)'],
+            'answer': 2 # Small Oh (o) is transitive but not reflexive.
+        },
+        {
+            'q': 'If f(n) = Σ(i=1 to n) i³, which is the most precise asymptotic bound for f(n)?',
+            # f(n) = Θ(n⁴)
+            'options': ['Θ(n⁴)', 'O(n⁵)', 'Ω(n³)', 'O(n⁴ log n)'],
+            'answer': 0 #
+        },
+        {
+            'q': 'What is the time complexity of the following code? P=n!; for (i=1; i<=n; ++i) for (j=1; j<=P; 2*j) C=C+1;',
+            # Outer loop runs n times. Inner loop runs log(P) = log(n!) = O(n log n) times. Total: O(n² log n).
+            'options': ['O(n²)', 'O(n² log n)', 'O(n log n)', 'O(n)'],
+            'answer': 1 #
+        },
+        {
+            'q': 'What is the time complexity of the following code? i=1; j=1; while (j<=n) { ++i; j=j+i; }',
+            # j is the sum 1+2+...+i. The loop runs until i² ≈ 2n, so i ≈ √n. Complexity is Θ(√n).
+            'options': ['Θ(n)', 'Θ(√n)', 'Θ(log n)', 'Θ(n log (log n))'],
+            'answer': 1 #
+        }
     ],
     'data_structures': [
         {'q': 'Best data structure for LRU cache?', 'options': ['Array', 'Stack', 'HashMap + DLL', 'BST'], 'answer': 2},
@@ -555,4 +586,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
