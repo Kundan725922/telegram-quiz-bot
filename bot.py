@@ -428,7 +428,11 @@ def main():
         print("❌ ERROR: Set BOT_TOKEN environment variable!")
         return
     
-    app = Application.builder().token(BOT_TOKEN).build()
+    builder = Application.builder().token(BOT_TOKEN)
+builder.connect_timeout(30.0)
+builder.read_timeout(30.0)
+builder.write_timeout(30.0)
+app = builder.build()
     
     # Command handlers
     app.add_handler(CommandHandler("start", start))
@@ -460,4 +464,5 @@ def main():
         app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
+
     main()
