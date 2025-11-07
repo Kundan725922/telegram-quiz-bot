@@ -1,5 +1,6 @@
 """
 Enhanced GATE CSE Quiz Telegram Bot with Leaderboard & Advanced Features
+Compatible with Python 3.8+ including 3.13
 Deploy on Render.com for 24/7 operation
 """
 
@@ -11,9 +12,14 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 import random
 from collections import defaultdict
+import sys
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Check Python version
+if sys.version_info >= (3, 13):
+    logger.warning("Python 3.13 detected. Telegram bot library works best with Python 3.8-3.12")
 
 # Get token from environment variable (for deployment) or use default
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII')
