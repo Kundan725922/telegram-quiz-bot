@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Constants (Improved Readability & Maintainability)
 # Use a secure method like an environment variable for the real token.
-BOT_TOKEN = os.environ.get('BOT_TOKEN', 'P8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII') 
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII') 
 # Define quiz modes and their parameters
 QUIZ_MODES = {
     'quick_5': {'num_q': 5, 'timed': False, 'label': "⚡ Quick (5Q)"},
@@ -555,3 +555,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
