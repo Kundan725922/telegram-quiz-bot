@@ -1,8 +1,3 @@
-"""
-GATE 2025 CS Set 1 - JSON File Generator (FIXED VERSION)
-This matches your actual folder structure
-"""
-
 import json
 import os
 
@@ -466,3 +461,4 @@ def create_gate_2025_json():
 
 if __name__ == "__main__":
     create_gate_2025_json()
+
