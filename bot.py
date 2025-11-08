@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 # --- Configuration & Initialization ---
 BOT_TOKEN = os.environ.get('BOT_TOKEN') 
-QUIZ_DATA_DIR = 'questions' # Directory for dynamic quiz files
+# QUIZ_DATA_DIR must be the top-level folder where all quizzes and subfolders are kept
+QUIZ_DATA_DIR = 'questions' 
 
 # Define quiz modes and their parameters
 QUIZ_MODES = {
@@ -36,15 +37,13 @@ TOPICS = ['algorithms', 'data_structures', 'programming', 'toc']
 leaderboard_data = defaultdict(lambda: {'total_score': 0, 'total_questions': 0, 'tests_taken': 0, 'best_score_pct': 0, 'username': 'N/A', 'user_id': 0})
 user_sessions = {} # Active quiz sessions
 
-# --- Question Bank (Retained for functionality) ---
-# NOTE: The QUESTIONS dictionary is kept for the /topics command functionality.
+# --- Question Bank (Retained for functionality of /topics command) ---
 QUESTIONS = {
     'algorithms': [
         {'q': 'What is the time complexity of building a heap of n elements?', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 0, 'img_url': None},
         {'q': 'Which sorting algorithm is NOT stable?', 'options': ['Merge Sort', 'Quick Sort', 'Insertion Sort', 'Bubble Sort'], 'answer': 1, 'img_url': None},
         {'q': 'Dijkstra algorithm does NOT work correctly with:', 'options': ['Directed graphs', 'Undirected graphs', 'Negative edge weights', 'Weighted graphs'], 'answer': 2, 'img_url': None},
-        # Adding questions from the PDF for a better mixed pool demo
-        {'q': 'The complexity of $n^{\\log n}$ is asymptotically greater than which of the following: $n$, $80$, $(\\log (\\log n))^2$, $(\\log n)^{\\log n}$?', 'options': ['All of them', 'Only $n$', 'Only $80$ and $n$', 'Only $(\\log n)^{\\log n}$'], 'answer': 0, 'img_url': None}
+        {'q': 'The complexity of n^(log n) is asymptotically greater than which of the following: n, 80, (log(log n))^2, (log n)^(log n)?', 'options': ['All of them', 'Only n', 'Only 80 and n', 'Only (log n)^(log n)'], 'answer': 0, 'img_url': None}
     ],
     'data_structures': [
         {'q': 'Best data structure for LRU cache?', 'options': ['Array', 'Stack', 'HashMap + DLL', 'BST'], 'answer': 2, 'img_url': None},
@@ -52,7 +51,7 @@ QUESTIONS = {
     ],
     'programming': [
         {'q': 'Size of pointer on 64-bit system:', 'options': ['4 bytes', '8 bytes', 'Depends', '2 bytes'], 'answer': 1, 'img_url': None},
-        {'q': 'What is the output of `print(10/3)` in Python 3?', 'options': ['3', '3.333', '3.0', 'Error'], 'answer': 1, 'img_url': None}
+        {'q': 'What is the output of print(10/3) in Python 3?', 'options': ['3', '3.333', '3.0', 'Error'], 'answer': 1, 'img_url': None}
     ],
     'toc': [
         {'q': 'DFA accepts which language class?', 'options': ['Context-free', 'Regular', 'Context-sensitive', 'Recursive'], 'answer': 1, 'img_url': None},
@@ -60,7 +59,7 @@ QUESTIONS = {
     ]
 }
 
-# --- Utility Functions ---
+# --- Utility Functions (Updated for recursive folder scan) ---
 
 def get_all_questions():
     """Compiles all questions from all topics from the hardcoded bank."""
@@ -70,12 +69,17 @@ def get_all_questions():
     return all_q
 
 def load_questions_from_file(quiz_id: str) -> list:
-    """Loads questions from a JSON file based on the quiz ID."""
+    """
+    Loads questions from a JSON file using the full relative path stored in quiz_id.
+    quiz_id is now the path, e.g., 'subject_wise/algorithm/algorithms_dpp_01_discussion'.
+    """
     try:
+        # NOTE: quiz_id is the path relative to QUIZ_DATA_DIR, file_path now resolves subfolders
         file_path = os.path.join(QUIZ_DATA_DIR, f'{quiz_id}.json')
+        
         if not os.path.exists(file_path):
             logger.error(f"Quiz file not found: {file_path}")
-            # Fallback for demonstration if file system is not available
+            # Fallback for demonstration
             return QUESTIONS.get('algorithms', [])[:5] 
             
         with open(file_path, 'r') as f:
@@ -85,32 +89,49 @@ def load_questions_from_file(quiz_id: str) -> list:
         return []
 
 def get_available_quizzes() -> dict:
-    """Scans the QUIZ_DATA_DIR and returns a dict of available quizzes {quiz_id: label}."""
+    """
+    Scans the QUIZ_DATA_DIR and all subdirectories recursively using os.walk.
+    Returns a dict of available quizzes {relative_path_id: label}.
+    """
     available = {}
     try:
-        # 1. Ensure the directory exists
         if not os.path.exists(QUIZ_DATA_DIR):
             os.makedirs(QUIZ_DATA_DIR, exist_ok=True)
             
-        # 2. Scan the directory
-        for filename in os.listdir(QUIZ_DATA_DIR):
-            if filename.endswith('.json'):
-                quiz_id = filename.replace('.json', '')
-                
-                # Simple label creation logic:
-                label_parts = quiz_id.split('_')
-                if label_parts[0] == 'daily':
-                    label = f"📅 Daily Quiz ({label_parts[-1]})"
-                elif label_parts[0] == 'weekly':
-                    label = f"🗓️ Weekly Test {label_parts[-1]}"
-                elif label_parts[0] == 'mock':
-                    label = f"🧠 Mock Test {label_parts[-1]}"
-                elif label_parts[0] == 'algorithms' and len(label_parts) > 1:
-                    label = f"📝 {quiz_id.replace('_', ' ').title()}"
-                else:
-                    label = quiz_id.replace('_', ' ').title()
+        # 2. Recursive Scan
+        for root, dirs, files in os.walk(QUIZ_DATA_DIR):
+            for filename in files:
+                if filename.endswith('.json'):
+                    full_path = os.path.join(root, filename)
                     
-                available[quiz_id] = label
+                    # Create the relative path ID (e.g., 'subject wise/algorithm/quiz_name')
+                    # We strip QUIZ_DATA_DIR/ and the .json extension
+                    relative_path = os.path.relpath(full_path, QUIZ_DATA_DIR)
+                    quiz_id = relative_path[:-5] # Remove '.json'
+                    
+                    # 3. Create a User-Friendly Label
+                    # Use os.path.sep to ensure cross-platform compatibility
+                    parts = quiz_id.replace(os.path.sep, ' - ').split(' - ')
+                    
+                    # Use up to the last three parts for a concise label
+                    display_parts = parts[-3:]
+                    
+                    # Capitalize and make it readable
+                    label = " | ".join([p.replace('_', ' ').title() for p in display_parts])
+                    
+                    # Prepend an icon based on the top-level folder
+                    top_folder = parts[0].lower()
+                    if 'mock' in top_folder:
+                         label = "🧠 " + label
+                    elif 'pyqs' in top_folder:
+                         label = "📖 " + label
+                    elif 'subject' in top_folder:
+                         label = "📚 " + label # Using '📚' for subject wise
+                    else:
+                         label = "📝 " + label
+                        
+                    available[quiz_id] = label
+
     except Exception as e:
         logger.error(f"Error listing quizzes in {QUIZ_DATA_DIR}: {e}")
         
@@ -118,8 +139,6 @@ def get_available_quizzes() -> dict:
     if not available:
          available = {
              f'daily_{datetime.now().strftime("%Y%m%d")}': "📅 Today's Daily Quiz (Mock)",
-             'mock_test_01': "🧠 Full Mock Test 1 (Mock)",
-             'algorithms_dpp_01_discussion': "🎓 DPP 01 Algorithms Test (Mock)",
          }
         
     return available
@@ -153,7 +172,7 @@ Ready to test your knowledge? Choose a quiz mode or a specific topic!
 
 📚 <b>Commands:</b>
 /quiz - Select your challenge mode (Quick, Timed, Simulation)
-/tests - Select a specific daily, weekly, or mock test
+/tests - Select a specific daily, weekly, or mock test (Includes subfolders!)
 /topics - Focus on a specific subject
 /leaderboard - Top 10 rankers globally
 /mystats - Your personalized analytics
@@ -163,18 +182,21 @@ Start your preparation now! 🚀"""
     await update.message.reply_text(text, parse_mode='HTML')
 
 async def special_tests(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show list of available date-wise, mock, or weekly quizzes."""
+    """Show list of available date-wise, mock, or weekly quizzes found in subfolders."""
     available = get_available_quizzes()
     
     if not available:
-        await update.message.reply_text("⚠️ No special quizzes found. Try /quiz for a standard test.", parse_mode='HTML')
+        await update.message.reply_text("⚠️ No special quizzes found in the 'questions' folder or its subfolders. Try /quiz for a standard test.", parse_mode='HTML')
         return
 
+    # Sort available quizzes alphabetically by label for a cleaner UI
+    sorted_quizzes = sorted(available.items(), key=lambda item: item[1])
+    
     keyboard = [[InlineKeyboardButton(label, callback_data=f'quiz_start_{quiz_id}')] 
-                for quiz_id, label in available.items()]
+                for quiz_id, label in sorted_quizzes]
     
     await update.message.reply_text(
-        "📅 <b>Select a Special Test:</b>\n\nChoose from daily, mock, or other date-based tests:",
+        "📅 <b>Select a Special Test:</b>\n\nQuizzes found in subfolders (Mock, PYQs, Subject Wise):",
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode='HTML'
     )
@@ -204,7 +226,8 @@ async def topics(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('📚 <b>Choose Topic:</b>', reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='HTML')
     
 
-# --- FIX START: Missing Command Handlers Added ---
+# --- Command Handler Definitions ---
+
 async def leaderboard_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show the leaderboard."""
     sorted_board = sorted(leaderboard_data.items(), key=lambda x: x[1]['best_score_pct'], reverse=True)[:10]
@@ -242,7 +265,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """Show help message."""
     await start(update, context) # Re-use start message as a simple help response
 
-# --- Internal Quiz Logic Placeholders (Needed for functionality) ---
+# --- Internal Quiz Logic ---
 
 async def quiz_timer(user_id: int, context: ContextTypes.DEFAULT_TYPE, time_limit: int, chat_id: int) -> None:
     """The timer function for timed quizzes."""
@@ -269,14 +292,12 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: in
     """Sends the current question to the user."""
     session = user_sessions.get(user_id)
     if not session or session.get('is_finished'):
-        # If no session or already finished, stop.
         return
 
     q_index = session['current']
     questions = session['questions']
     
     if q_index >= len(questions):
-        # End of quiz reached
         await finalize_quiz(user_id, context)
         return
 
@@ -316,7 +337,6 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: in
     try:
         await message.edit_text(question_text, reply_markup=reply_markup, parse_mode='HTML')
     except error.BadRequest:
-        # Happens if the message text is identical; just log and continue
         logger.info(f"Attempted to edit message with identical content for user {user_id}.")
 
 
@@ -429,13 +449,12 @@ async def post_quiz_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     
     if data == 'post_quiz_action_new':
         await quiz(update, context)
-        await query.delete_message()
+        try:
+            await query.delete_message()
+        except error.BadRequest:
+             pass # Can't delete, ignore
     elif data == 'post_quiz_action_review':
-        # Simple review placeholder. A full review feature is complex!
         await query.edit_message_text("👀 **Review Feature**\n\nThis feature is under construction! Please check back later or start a new quiz with /quiz.")
-
-
-# --- FIX END: All missing handlers are now defined ---
 
 
 # --- Callback Query Handlers ---
@@ -453,7 +472,7 @@ async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_T
         await topics(update, context)
         return
 
-    # --- NEW LOGIC: Special Quiz Selection (/tests command) ---
+    # --- 1. Special Quiz Selection (/tests command) ---
     if data.startswith('quiz_start_'):
         quiz_id = data.split('_start_')[1]
         selected_questions_list = load_questions_from_file(quiz_id) # Use the dynamic loader
@@ -464,14 +483,14 @@ async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_T
         config = QUIZ_MODES.get('simulation_20_720', QUIZ_MODES['full_20']) 
         is_timed = config['timed']
         time_limit = config.get('time_limit', 720) # Default to 12 mins if not specified
-        mode = quiz_id # Use the quiz_id as the mode identifier
+        mode = quiz_id # Use the relative path ID as the mode identifier
         instant_feedback = config['feedback']
         
-    # --- EXISTING LOGIC: Mode/Topic Selection (/quiz or /topics command) ---
+    # --- 2. Mode/Topic Selection (/quiz or /topics command) ---
     elif data.startswith('mode_select_') or data.startswith('topic_select_'):
         data = data.split('_select_')[1]
         
-        # 1. Determine Quiz Parameters
+        # Determine Quiz Parameters
         num_q = 0
         is_timed = False
         time_limit = None
@@ -492,7 +511,7 @@ async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_T
             mode = f'topic_{data}'
             instant_feedback = True
         
-        # 2. Select Questions from hardcoded bank
+        # Select Questions from hardcoded bank
         if data == 'random' or data in QUIZ_MODES:
             all_q = get_all_questions()
             selected_questions_list = random.sample(all_q, min(num_q, len(all_q)))
@@ -553,7 +572,6 @@ async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_T
 
 def main():
     """Main function - optimized for deployment"""
-    # Check if the required BOT_TOKEN environment variable is present
     if not BOT_TOKEN:
         logger.error("❌ ERROR: The BOT_TOKEN environment variable is not set. The application cannot start.")
         return
@@ -567,21 +585,18 @@ def main():
         .build()
     )
     
-    # Command handlers (All handlers are now defined above)
+    # Command handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("quiz", quiz))
-    app.add_handler(CommandHandler("tests", special_tests))
+    app.add_handler(CommandHandler("tests", special_tests)) # Uses the new recursive scan
     app.add_handler(CommandHandler("topics", topics))
-    app.add_handler(CommandHandler("leaderboard", leaderboard_handler)) # FIXED
-    app.add_handler(CommandHandler("mystats", mystats)) # FIXED
-    app.add_handler(CommandHandler("help", help_command)) # FIXED
+    app.add_handler(CommandHandler("leaderboard", leaderboard_handler)) 
+    app.add_handler(CommandHandler("mystats", mystats)) 
+    app.add_handler(CommandHandler("help", help_command)) 
     
     # Callback handlers
-    # Unified handler for all quiz selection logic
     app.add_handler(CallbackQueryHandler(mode_or_topic_selected, pattern='^mode_select_|^topic_select_|^quiz_start_')) 
-    # Answer and Navigation handler (handle_answer now correctly defined)
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^answer_submit_|^quiz_submit_final|^quiz_nav_'))
-    # Post-Quiz action handler (post_quiz_action now correctly defined)
     app.add_handler(CallbackQueryHandler(post_quiz_action, pattern='^post_quiz_action_'))
     
     print("🤖 Bot starting...")
