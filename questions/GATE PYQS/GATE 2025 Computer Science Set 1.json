@@ -1,9 +1,4 @@
-import json
-import os
 
-# GATE 2025 CS Set 1 Complete Question Bank
-gate_2025_questions = [
-    # General Aptitude (Q1-Q10)
     {
         "q": "Ravi had ______ younger brother who taught at ______ university. He was widely regarded as ______ honorable man. Select the option with the correct sequence of articles to fill in the blanks.",
         "options": ["a; a; an", "the; an; a", "a; an; a", "an; an; a"],
@@ -461,4 +456,5 @@ def create_gate_2025_json():
 
 if __name__ == "__main__":
     create_gate_2025_json()
+
 
