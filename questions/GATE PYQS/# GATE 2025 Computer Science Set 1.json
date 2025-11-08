@@ -1,350 +1,473 @@
-# Add this code AFTER your existing QUESTIONS dictionary definition
-# This will ADD the GATE 2025 questions to your existing questions
+"""
+GATE 2025 CS Set 1 - JSON File Generator
+Create this structure in your 'questions' folder:
 
-# GATE 2025 Questions to merge
-GATE_2025_ADDITIONS = {
-    'algorithms': [
-        {
-            'q': 'G: undirected graph with positive edge weights, T: minimum spanning tree. d1(u,v): shortest in G, d2(u,v): shortest in T. Which is CORRECT for all G,T,u,v?',
-            'options': ['d1(u,v) = d2(u,v)', 'd1(u,v) ≤ d2(u,v)', 'd1(u,v) ≥ d2(u,v)', 'd1(u,v) ≠ d2(u,v)'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/62'
-        },
-        {
-            'q': 'Undirected unweighted graph, 100 vertices. Max d(u,v) is 30. T is any BFS tree. Which is CORRECT for every such G?',
-            'options': ['Height of T is exactly 15', 'Height of T is exactly 30', 'Height of T is at least 15', 'Height of T is at least 30'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/87'
-        },
-        {
-            'q': 'Given an undirected graph G with positive edge weights and its MST T, the shortest path distance in G is always less than or equal to the distance in T.',
-            'options': ['True for all graphs', 'False for all graphs', 'Depends on graph structure', 'Only true for complete graphs'],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': None
-        }
-    ],
-    
-    'data_structures': [
-        {
-            'q': 'Recurrence: T(n) = 2T(n-1) + n·2^n for n>0, T(0)=1. Which is CORRECT?',
-            'options': ['T(n) = Θ(n²·2^n)', 'T(n) = Θ(n·2^n)', 'T(n) = Θ((log n)²·2^n)', 'T(n) = Θ(4^n)'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/64'
-        },
-        {
-            'q': 'Binary search tree with n distinct integers. Which statement(s) is/are TRUE?',
-            'options': ['Maximum path length from root is (n-1)', 'Inorder traversal produces sorted sequence', 'Finding element takes O(log₂n) worst case', 'Every BST is also a Min-Heap'],
-            'answer': [0, 1],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/70'
-        },
-        {
-            'q': 'Min-Heap with 32 keys. What is the height of the tree (maximum edges from root to leaf)?',
-            'options': ['3', '4', '5', '6'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/79'
-        },
-        {
-            'q': 'A hash table uses double hashing with h1(k) = k mod 11 and h2(k) = 1 + (k mod 7). Table size is 11. Keys inserted in order: 63, 50, 25, 79, 67, 24. At which slot is key 24 stored?',
-            'options': ['0', '1', '2', '3'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/109'
-        }
-    ],
-    
-    'operating_systems': [
-        {
-            'q': 'A program with interrupt handling: Steps are (i) Save PC (ii) Load PC with ISR address (iii) Finish current instruction. What is the CORRECT sequence?',
-            'options': ['(iii), (i), (ii)', '(i), (iii), (ii)', '(i), (ii), (iii)', '(iii), (ii), (i)'],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/55'
-        },
-        {
-            'q': 'Demand paging: 32-bit logical address, 20-bit physical address, page size 2048 bytes. Maximum entries in page table?',
-            'options': ['2^21', '2^20', '2^22', '2^24'],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/58'
-        },
-        {
-            'q': 'Two processors M1, M2. Four processes with CPU bursts 20, 16, 25, 10 ms arrive together. M1 priority: P1>P3>P2>P4. M2 priority: P2>P3>P4>P1. Non-preemptive priority scheduling. What is average waiting time?',
-            'options': ['9.00 ms', '8.75 ms', '6.50 ms', '7.50 ms'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/82'
-        },
-        {
-            'q': 'Memory hierarchy: L1 cache (1ns, 90% hit), L2 cache (10ns, 95% hit on L1 miss), Main memory (100ns). What is average memory access time?',
-            'options': ['1.29 ns', '2.45 ns', '5.50 ns', '10.00 ns'],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/97'
-        }
-    ],
-    
-    'databases': [
-        {
-            'q': 'Transaction schedule: R1(X) W1(Y) R2(X) R2(Y) R3(Y) ABORT(T1). Which transaction(s) must be rolled back?',
-            'options': ['Only T2', 'Only T3', 'Both T2 and T3', 'Neither T2 nor T3'],
-            'answer': 3,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/59'
-        },
-        {
-            'q': 'Relations: teams(tid, tname), players(pid, pname, tid). Which tuple relational calculus query returns player names for team \'MI\'?',
-            'options': [
-                '{p.pname | p ∈ players ∧ ∃t(t ∈ teams ∧ p.tid = t.tid ∧ t.tname = \'MI\')}',
-                '{p.pname | p ∈ teams ∧ ∃t(t ∈ players ∧ p.tid = t.tid ∧ t.tname = \'MI\')}',
-                '{p.pname | p ∈ players ∧ ∃t(t ∈ teams ∧ t.tname = \'MI\')}',
-                '{p.pname | p ∈ teams ∧ ∃t(t ∈ players ∧ t.tname = \'MI\')}'
-            ],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/83'
-        },
-        {
-            'q': 'B+ tree with max 3 keys per node, currently 5 nodes. Value 23 is inserted. Which is/are CORRECT?',
-            'options': ['No nodes will split', 'At least one node will split', 'Total nodes remain same', 'Height will increase'],
-            'answer': [1, 2],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/65'
-        },
-        {
-            'q': 'Relation team(name, city, owner) with FDs: name→city, name→owner. Decomposed to t1(name,city) and t2(name,owner). Which is/are TRUE?',
-            'options': ['team NOT in BCNF', 't1 and t2 in BCNF', 'Lossless join decomposition', 'team NOT in 3NF'],
-            'answer': [0, 1, 2],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/91'
-        }
-    ],
-    
-    'networks': [
-        {
-            'q': 'Match OSI layers: (a) Network layer (b) Transport layer (c) Datalink layer with (I) Packet routing (II) Framing/error handling (III) Host-to-host communication',
-            'options': ['(a)-(I), (b)-(II), (c)-(III)', '(a)-(I), (b)-(III), (c)-(II)', '(a)-(II), (b)-(I), (c)-(III)', '(a)-(III), (b)-(II), (c)-(I)'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/60'
-        },
-        {
-            'q': 'TCP 3-way handshake packets P1, P2, P3. Which is/are TRUE about TCP header flags?',
-            'options': ['P3: SYN=1, ACK=1', 'P2: SYN=1, ACK=1', 'P2: SYN=0, ACK=1', 'P1: SYN=1'],
-            'answer': [1, 3],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/66'
-        },
-        {
-            'q': 'A packet with destination IP 145.36.109.70 arrives at a router. Based on the routing table with CIDR entries, which interface should it be forwarded to?',
-            'options': ['E1', 'E2', 'E3', 'E5'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/84'
-        },
-        {
-            'q': 'A 5-bit message is transmitted. Each bit has 0.01 probability of flipping (independent). What is probability of error-free delivery?',
-            'options': ['0.990', '0.951', '0.900', '0.850'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/100'
-        }
-    ],
-    
-    'toc': [
-        {
-            'q': 'Context-free grammar: S→aaB|Abb, A→a|aA, B→b|bB. Which language L(G) is accepted?',
-            'options': [
-                '{a²b^n | n≥1} ∪ {a^n b² | n≥1}',
-                '{a^n b^(2n) | n≥1} ∪ {a^(2n) b^n | n≥1}',
-                '{a^n b^n | n≥1}',
-                '{a^(2n) b^(2n) | n≥1}'
-            ],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/63'
-        },
-        {
-            'q': 'Languages: L1={αβα | α∈{a,b}⁺, β∈{a,b}⁺}, L2={αβα | α∈{a}⁺, β∈{a,b}⁺}. Which is CORRECT?',
-            'options': ['Both L1, L2 regular', 'L1 regular, L2 not', 'L1 not regular, L2 regular', 'Neither regular'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/88'
-        },
-        {
-            'q': 'Languages: L1={a^m b^m c^(m+n) | m,n≥1}, L2={a^m b^n c^(m+n) | m,n≥1}. Which is CORRECT?',
-            'options': ['Both context-free', 'L1 context-free, L2 not', 'L1 not context-free, L2 is', 'Neither context-free'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/89'
-        },
-        {
-            'q': 'Regular language L accepted by NFA with n states. Which statement(s) is/are FALSE?',
-            'options': ['L may have NFA with <n states', 'L may have DFA with <n states', 'DFA with ≤2^n states exists for L', 'Every DFA for L has >2^n states'],
-            'answer': [3],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/72'
-        }
-    ],
-    
-    'digital_logic': [
-        {
-            'q': 'X is 3-variable Boolean function: outputs 1 when at least two inputs are 1. Which statement(s) is/are CORRECT?',
-            'options': ['X(a,b,X(c,d,e)) = X(X(a,b,c),d,e)', 'X(a,b,X(a,b,c)) = X(a,b,c)', 'X(a,b,X(a,c,d)) = X(a,b,a) AND X(c,d,c)', 'X(a,b,c) = X(a,X(a,b,c),X(a,c,c))'],
-            'answer': [0, 1],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/68'
-        },
-        {
-            'q': 'Number -6 represented as 1010 in 4-bit 2\'s complement. Which is/are CORRECT 2\'s complement representations of -6?',
-            'options': ['1000 1010 in 8-bits', '1111 1010 in 8-bits', '1000 0000 0000 1010 in 16-bits', '1111 1111 1111 1010 in 16-bits'],
-            'answer': [1, 3],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/69'
-        },
-        {
-            'q': 'Boolean function F(b3,b2,b1,b0) = Σ(0,2,4,8,10,11,12). Which is CORRECT minimized expression?',
-            'options': ['b̄1·b̄0 + b̄2·b̄0 + b1·b̄2·b3', 'b̄1·b̄0 + b̄2·b̄0', 'b̄2·b̄0 + b1·b2·b3', 'b̄0·b̄2 + b̄3'],
-            'answer': 0,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/86'
-        }
-    ],
-    
-    'compiler_design': [
-        {
-            'q': 'Which statement is FALSE regarding the symbol table?',
-            'options': ['Keeps track of variable scope', 'Can be implemented using BST', 'Not required after parsing phase', 'Created during lexical analysis'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/56'
-        },
-        {
-            'q': 'Which compiler optimization technique uses live variable analysis?',
-            'options': ['Run-time function call management', 'Register assignment to variables', 'Strength reduction', 'Constant folding'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/57'
-        },
-        {
-            'q': 'Which can be performed during lexical analysis?',
-            'options': ['Removing comments', 'Checking type compatibility', 'Removing whitespaces', 'Detecting undeclared variables'],
-            'answer': [0, 2],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/93'
-        },
-        {
-            'q': 'Grammar: S → aSb | ab. Which statement is TRUE?',
-            'options': ['Grammar is LL(1)', 'Grammar is ambiguous', 'Generates {a^n b^n | n≥1}', 'Grammar is left-recursive'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': None
-        }
-    ],
-    
-    'discrete_math': [
-        {
-            'q': 'Functions g:A→B, f:B→C, composition f(g(.)):A→C. If f and f(g(.)) are onto, what is TRUE about g?',
-            'options': ['g must be onto', 'g must be one-to-one', 'g must be bijective', 'g not required to be one-to-one or onto'],
-            'answer': 3,
-            'type': 'MCQ',
-            'marks': 1,
-            'img_url': 'https://t.me/LLB_2024_25/44/61'
-        },
-        {
-            'q': 'System: x + ky = 1, kx + y = -1. Which is/are CORRECT?',
-            'options': ['Exactly one k with no solution', 'Infinite k values with no solution', 'Exactly one k with one solution', 'Exactly one k with infinite solutions'],
-            'answer': [0, 3],
-            'type': 'MSQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/67'
-        },
-        {
-            'q': 'Matrix A = [[1,1],[1,-1]]. What are eigenvalues of A^13?',
-            'options': ['1, -1', '2√2, -2√2', '4√2, -4√2', '64√2, -64√2'],
-            'answer': 3,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/85'
-        }
-    ],
-    
-    'coa': [
-        {
-            'q': 'In 5-stage pipeline, data hazards can be resolved using:',
-            'options': ['Forwarding only', 'Stalling only', 'Both forwarding and stalling', 'Neither'],
-            'answer': 2,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': None
-        },
-        {
-            'q': 'Memory: 1MB main, 16KB cache, 20-bit address, 16-byte blocks, direct mapping. How many bits for all tag values?',
-            'options': ['6×2^10', '8×2^10', '2^12', '2^14'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/80'
-        },
-        {
-            'q': 'Processor: 64 registers, 50 instruction types, 32-bit encoding. Max bits for immediate in ADD R1, #25?',
-            'options': ['16', '20', '22', '24'],
-            'answer': 1,
-            'type': 'MCQ',
-            'marks': 2,
-            'img_url': 'https://t.me/LLB_2024_25/44/81'
-        }
-    ]
-}
+questions/
+├── gate_pyqs/
+│   └── gate_2025_cs_set1.json
 
-# MERGE FUNCTION - Add this to your code
-def merge_gate_questions():
-    """Merge GATE 2025 questions into existing QUESTIONS dictionary"""
-    for topic, questions in GATE_2025_ADDITIONS.items():
-        if topic in QUESTIONS:
-            # Add to existing topic
-            QUESTIONS[topic].extend(questions)
-        else:
-            # Create new topic
-            QUESTIONS[topic] = questions
-    print(f"✅ Successfully merged {sum(len(q) for q in GATE_2025_ADDITIONS.values())} GATE 2025 questions!")
+Run this script to generate the JSON file.
+"""
 
-# Call this function right after defining QUESTIONS
-merge_gate_questions()
+import json
+import os
 
-# Now your bot will have all the original + GATE 2025 questions!
+# GATE 2025 CS Set 1 Complete Question Bank
+gate_2025_questions = [
+    # General Aptitude (Q1-Q10) - 1 mark each for Q1-Q5, 2 marks for Q6-Q10
+    {
+        "q": "Ravi had ______ younger brother who taught at ______ university. He was widely regarded as ______ honorable man. Select the option with the correct sequence of articles to fill in the blanks.",
+        "options": ["a; a; an", "the; an; a", "a; an; a", "an; an; a"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/45"
+    },
+    {
+        "q": "The CEO's decision to downsize the workforce was considered myopic because it sacrificed long-term stability to accommodate short-term gains. Select the most appropriate option that can replace the word 'myopic' without changing the meaning of the sentence.",
+        "options": ["visionary", "shortsighted", "progressive", "innovative"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/46"
+    },
+    {
+        "q": "The average marks obtained by a class in an examination were calculated as 30.8. However, the teacher found that marks of one student were entered as 24 instead of 42. After correcting, the average becomes 31.4. How many students does the class have?",
+        "options": ["25", "28", "30", "32"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/47"
+    },
+    {
+        "q": "Consider the relationships: P is brother of Q. S is daughter of Q. T is sister of S. R is mother of Q. Statements: (1) R is grandmother of S (2) P is uncle of S and T (3) R has only one son (4) Q has only one daughter. Which is correct?",
+        "options": ["Both (1) and (2) are true", "Both (1) and (3) are true", "Only (3) is true", "Only (4) is true"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/48"
+    },
+    {
+        "q": "According to the map shown in the figure, which one of the following statements is correct?",
+        "options": ["The library is located to the northwest of the canteen", "The hospital is located to the east of the chemistry lab", "The chemistry lab is to the southeast of physics lab", "The classrooms and canteen are next to each other"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/49"
+    },
+    {
+        "q": "From G.K. Chesterton's 'A Piece of Chalk': Based only on the passage about things in pockets, which statement is true?",
+        "options": ["The author carries a mirror to reflect upon things", "The author decided to write a poem on epics", "The pocket-knife is described as the infant of the sword", "Epics are described as too inconvenient to write"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/50"
+    },
+    {
+        "q": "Lines QR and ST are parallel. The shortest distance between these lines is half the shortest distance between point P and line QR. What is the ratio of area of triangle PST to area of trapezium SQRT?",
+        "options": ["1/3", "1/4", "2/5", "1/2"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/51"
+    },
+    {
+        "q": "A fair six-faced dice is rolled thrice. What is the probability of rolling '6' exactly once?",
+        "options": ["75/216", "1/6", "1/18", "25/216"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/52"
+    },
+    {
+        "q": "A square paper is folded along dotted lines and cuts are made. Which pattern will be obtained when the paper is unfolded?",
+        "options": ["Pattern A", "Pattern B", "Pattern C", "Pattern D"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/53"
+    },
+    {
+        "q": "A shop has 4 distinct flavors of ice-cream. One can purchase any number of scoops. Order is inconsequential. If one wants to purchase 3 scoops, in how many ways can one make that purchase?",
+        "options": ["4", "20", "24", "48"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/54"
+    },
+    
+    # Computer Organization & Architecture (Q11, Q27, Q36, Q37)
+    {
+        "q": "A program is running on a non-pipelined single processor. When an interrupt arrives, steps are: (i) Save program counter (ii) Load PC with ISR address (iii) Finish present instruction. What is the CORRECT sequence?",
+        "options": ["(iii), (i), (ii)", "(i), (iii), (ii)", "(i), (ii), (iii)", "(iii), (ii), (i)"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/55"
+    },
+    {
+        "q": "A partial data path of a processor is given with RA, RB, and RZ registers (32-bit). Which option(s) is/are CORRECT related to arithmetic operations using the data path?",
+        "options": ["Can implement operations involving two registers", "Can implement operations involving one register and one immediate value", "Can implement operations involving two immediate values", "Can only implement operations with one register and one immediate"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/71"
+    },
+    {
+        "q": "Memory system: 1M bytes main memory, 16K bytes cache, 20-bit address, block size 16 bytes, direct mapping. How many bits required to store all tag values? [1K=2^10, 1M=2^20]",
+        "options": ["6 × 2^10", "8 × 2^10", "2^12", "2^14"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/80"
+    },
+    {
+        "q": "A processor has 64 general-purpose registers and 50 distinct instruction types. Instruction is encoded in 32 bits. What is the maximum number of bits for immediate operand in: ADD R1, #25?",
+        "options": ["16", "20", "22", "24"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/81"
+    },
+    
+    # Compiler Design (Q12, Q13, Q46, Q52)
+    {
+        "q": "Which ONE of the following statements is FALSE regarding the symbol table?",
+        "options": ["Symbol table is responsible for keeping track of the scope of variables", "Symbol table can be implemented using a binary search tree", "Symbol table is not required after the parsing phase", "Symbol table is created during the lexical analysis phase"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/56"
+    },
+    {
+        "q": "Which ONE of the following techniques used in compiler code optimization uses live variable analysis?",
+        "options": ["Run-time function call management", "Register assignment to variables", "Strength reduction", "Constant folding"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/57"
+    },
+    {
+        "q": "Which of the following statement(s) is/are TRUE while computing First and Follow during top down parsing by a compiler?",
+        "options": ["For a production A → ε, ε will be added to First(A)", "If there is any input right end marker, it will be added to First(S), where S is the start symbol", "For a production A → ε, ε will be added to Follow(A)", "If there is any input right end marker, it will be added to Follow(S), where S is the start symbol"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/90"
+    },
+    {
+        "q": "A 3-address code sequence is shown split into basic blocks. How many basic blocks are there? (Refer to the image for the code sequence)",
+        "options": ["3", "4", "5", "6"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/96"
+    },
+    
+    # Operating Systems (Q14, Q29, Q38, Q51, Q53, Q54)
+    {
+        "q": "Consider a demand paging memory management system with 32-bit logical address, 20-bit physical address, and page size of 2048 bytes. Assuming memory is byte addressable, what is the maximum number of entries in the page table?",
+        "options": ["2^21", "2^20", "2^22", "2^24"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/58"
+    },
+    {
+        "q": "A multiprogramming C program has scanf and printf in a loop (i=0 to 20). The number of times the process enters ready queue during lifetime (not counting initial entry) is:",
+        "options": ["20", "40", "41", "42"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/73"
+    },
+    {
+        "q": "Two processors M1, M2. Four processes with CPU bursts 20, 16, 25, 10 ms arrive simultaneously. Non-preemptive priority: M1: P1>P3>P2>P4, M2: P2>P3>P4>P1. What is average waiting time in milliseconds?",
+        "options": ["9.00", "8.75", "6.50", "7.50"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/82"
+    },
+    {
+        "q": "Disk: 512MB size, 64KB blocks. Linked allocation, 4 bytes for pointer. File of 1MB stored. Space wasted due to internal fragmentation in bytes:",
+        "options": ["65472", "65536", "64000", "66000"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/95"
+    },
+    {
+        "q": "Memory hierarchy: L1 cache (1ns, 90% hit), L2 cache (10ns on L1 miss, 95% hit), Main memory (100ns). Average memory access time in nanoseconds:",
+        "options": ["1.29", "2.45", "5.50", "10.00"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/97"
+    },
+    {
+        "q": "Modified optimal page replacement (predicts next 4 refs). Page sequence: 1,3,2,4,2,3,1,2,4,3,1,4. Three frames initially empty. Number of page faults:",
+        "options": ["5", "6", "7", "8"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/98"
+    },
+    
+    # Databases (Q15, Q21, Q39, Q47, Q55)
+    {
+        "q": "A schedule of three transactions T1, T2, T3: R1(X) W1(Y) R2(X) R2(Y) R3(Y) ABORT(T1). Which other transaction(s) will be required to be rolled back?",
+        "options": ["Only T2", "Only T3", "Both T2 and T3", "Neither T2 nor T3"],
+        "answer": 3,
+        "img_url": "https://t.me/LLB_2024_25/44/59"
+    },
+    {
+        "q": "B+ tree with 5 nodes, max 3 keys per node. Value 23 is inserted. Which of the following option(s) is/are CORRECT?",
+        "options": ["None of the nodes will split", "At least one node will split and redistribute", "The total number of nodes will remain same", "The height of the tree will increase"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/65"
+    },
+    {
+        "q": "Relations: teams(tid, tname), players(pid, pname, tid). Which tuple relational calculus query returns player names for team 'MI'?",
+        "options": [
+            "{p.pname | p ∈ players ∧ ∃t(t ∈ teams ∧ p.tid = t.tid ∧ t.tname = 'MI')}",
+            "{p.pname | p ∈ teams ∧ ∃t(t ∈ players ∧ p.tid = t.tid ∧ t.tname = 'MI')}",
+            "{p.pname | p ∈ players ∧ ∃t(t ∈ teams ∧ t.tname = 'MI')}",
+            "{p.pname | p ∈ teams ∧ ∃t(t ∈ players ∧ t.tname = 'MI')}"
+        ],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/83"
+    },
+    {
+        "q": "Relation team(name, city, owner) with FDs: name→city, name→owner. Decomposed to t1(name,city) and t2(name,owner). Which statement(s) is/are TRUE?",
+        "options": ["The relation team is NOT in BCNF", "The relations t1 and t2 are in BCNF", "The decomposition constitutes a lossless join", "The relation team is NOT in 3NF"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/91"
+    },
+    {
+        "q": "SQL query on player/coach/team/members tables finds MIN age of players coached by 'Mark'. (Refer to image for table data) The value returned is:",
+        "options": ["20", "22", "25", "28"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/99"
+    },
+    
+    # Computer Networks (Q16, Q22, Q40, Q56, Q57)
+    {
+        "q": "Identify the ONE CORRECT matching between OSI layers and functionalities: (a) Network layer (b) Transport layer (c) Datalink layer with (I) Packet routing (II) Framing and error handling (III) Host to host communication",
+        "options": ["(a)-(I), (b)-(II), (c)-(III)", "(a)-(I), (b)-(III), (c)-(II)", "(a)-(II), (b)-(I), (c)-(III)", "(a)-(III), (b)-(II), (c)-(I)"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/60"
+    },
+    {
+        "q": "Consider the 3-way handshaking protocol for TCP. Let packets be P1, P2, P3 in order. Which of the following option(s) is/are TRUE with respect to TCP header flags?",
+        "options": ["P3: SYN = 1, ACK = 1", "P2: SYN = 1, ACK = 1", "P2: SYN = 0, ACK = 1", "P1: SYN = 1"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/66"
+    },
+    {
+        "q": "A packet with destination IP address 145.36.109.70 arrives at a router. (Refer to routing table in image) Which interface will the packet be forwarded to?",
+        "options": ["E3", "E1", "E2", "E5"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/84"
+    },
+    {
+        "q": "A 5-bit message is transmitted. Each bit has probability 0.01 of flipping (independent). The probability of error-free delivery is:",
+        "options": ["0.900", "0.951", "0.980", "0.990"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/100"
+    },
+    {
+        "q": "Message of 15000 bytes transmitted via IPv4 through two routers with defined MTUs (refer to image). The number of fragments delivered to destination is:",
+        "options": ["6", "7", "8", "9"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/101"
+    },
+    
+    # Discrete Mathematics (Q17, Q23, Q31, Q32, Q41, Q48, Q49, Q58)
+    {
+        "q": "g(.) is a function from A to B, f(.) is a function from B to C, composition f(g(.)): A to C. If f(.) and f(g(.)) are onto (surjective), which is TRUE about g(.)?",
+        "options": ["g(.) must be onto", "g(.) must be one-to-one (injective)", "g(.) must be bijective", "g(.) is not required to be one-to-one or onto"],
+        "answer": 3,
+        "img_url": "https://t.me/LLB_2024_25/44/61"
+    },
+    {
+        "q": "System of linear equations: x + ky = 1, kx + y = -1. Which of the following option(s) is/are CORRECT?",
+        "options": ["Exactly one value of k for which system has no solution", "Infinite number of values of k with no solution", "Exactly one value of k with exactly one solution", "Exactly one value of k with infinite number of solutions"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/67"
+    },
+    {
+        "q": "Function f(x) = {ax + b for x < 1; x³ + x² + 1 for x ≥ 1}. If differentiable everywhere, the value of b must be:",
+        "options": ["-1.0", "0.0", "1.0", "2.0"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/75"
+    },
+    {
+        "q": "Box contains 5 coins: 4 regular (P(head)=0.5), 1 fake (P(head)=1). Pick random coin, toss twice, get two heads. Probability that coin is fake:",
+        "options": ["0.20", "0.33", "0.44", "0.50"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/76"
+    },
+    {
+        "q": "Matrix A = [[1,1],[1,-1]]. What are the eigenvalues of matrix A^13?",
+        "options": ["1, -1", "2√2, -2√2", "4√2, -4√2", "64√2, -64√2"],
+        "answer": 3,
+        "img_url": "https://t.me/LLB_2024_25/44/85"
+    },
+    {
+        "q": "Predicate logic for 'Everyone has exactly one mother': mother(y,x): y is mother of x, noteq(x,y): x≠y. Which formula(s) is/are CORRECT?",
+        "options": [
+            "∀x∃y∃z(mother(y,x) ∧ ¬mother(z,x))",
+            "∀x∃y[mother(y,x) ∧ ∀z(noteq(z,y) → ¬mother(z,x))]",
+            "∀x∀y[mother(y,x) → ∃z(mother(z,x) ∧ ¬noteq(z,y))]",
+            "∀x∃y[mother(y,x) ∧ ¬∃z(noteq(z,y) ∧ mother(z,x))]"
+        ],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/92"
+    },
+    {
+        "q": "A = {0,1,2,3,...}, F = set of functions A→A, (f1⊙f2)(n) = f1(n)+f2(n). Which is/are CORRECT about (F,⊙)?",
+        "options": ["(F,⊙) is an Abelian group", "(F,⊙) is an Abelian monoid", "(F,⊙) is a non-Abelian group", "(F,⊙) is a non-Abelian monoid"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/93"
+    },
+    {
+        "q": "Probability distribution P(x) = {Cx² for 1≤x≤4; 0 otherwise}. The probability P(2≤x≤3) is:",
+        "options": ["0.210", "0.310", "0.410", "0.510"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/102"
+    },
+    
+    # Algorithms (Q18, Q33, Q43, Q64)
+    {
+        "q": "Let G be undirected graph with positive edge weights, T be minimum spanning tree. d1(u,v) and d2(u,v) be shortest distances in G and T respectively. Which is CORRECT for all possible G,T,u,v?",
+        "options": ["d1(u,v) = d2(u,v)", "d1(u,v) ≤ d2(u,v)", "d1(u,v) ≥ d2(u,v)", "d1(u,v) ≠ d2(u,v)"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/62"
+    },
+    {
+        "q": "Pseudocode fun() performs bubble sort. Array A[0...29] has 30 distinct integers in descending order. Number of swap operations when fun(A) is called:",
+        "options": ["406", "420", "435", "450"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/77"
+    },
+    {
+        "q": "G(V,E): undirected unweighted graph, 100 vertices. Max value of d(u,v) is 30. T is any BFS tree of G. Which is CORRECT for every such G?",
+        "options": ["Height of T is exactly 15", "Height of T is exactly 30", "Height of T is at least 15", "Height of T is at least 30"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/87"
+    },
+    {
+        "q": "Graph with weighted edges (refer to image). Maximum value of x such that edge between nodes B and C is included in every minimum spanning tree:",
+        "options": ["10", "11", "12", "13"],
+        "answer": 3,
+        "img_url": "https://t.me/LLB_2024_25/44/108"
+    },
+    
+    # Theory of Computation (Q19, Q28, Q30, Q44, Q45, Q50)
+    {
+        "q": "Context-free grammar G: S→aaB|Abb, A→a|aA, B→b|bB. Which ONE of the languages L(G) is accepted by G?",
+        "options": [
+            "L(G) = {a²bⁿ | n≥1} ∪ {aⁿb² | n≥1}",
+            "L(G) = {aⁿb²ⁿ | n≥1} ∪ {a²ⁿbⁿ | n≥1}",
+            "L(G) = {aⁿbⁿ | n≥1}",
+            "L(G) = {a²ⁿb²ⁿ | n≥1}"
+        ],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/63"
+    },
+    {
+        "q": "A regular language L is accepted by NFA with n states. Which statement(s) is/are FALSE?",
+        "options": ["L may have an accepting NFA with < n states", "L may have an accepting DFA with < n states", "There exists a DFA with ≤ 2^n states that accepts L", "Every DFA that accepts L has > 2^n states"],
+        "answer": 3,
+        "img_url": "https://t.me/LLB_2024_25/44/72"
+    },
+    {
+        "q": "Set S of ternary strings over {a,b,c}. Consider strings with at least one occurrence of 'aa', 'bb' or 'cc'. Number of such strings of length 5:",
+        "options": ["120", "135", "150", "165"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/74"
+    },
+    {
+        "q": "Languages over {a,b}: L1={αβα | α∈{a,b}⁺ AND β∈{a,b}⁺}, L2={αβα | α∈{a}⁺ AND β∈{a,b}⁺}. Which is CORRECT?",
+        "options": ["Both L1 and L2 are regular", "L1 is regular but L2 is not", "L1 is not regular but L2 is regular", "Neither L1 nor L2 is regular"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/88"
+    },
+    {
+        "q": "Languages over {a,b,c}: L1={aᵐbᵐcᵐ⁺ⁿ | m,n≥1}, L2={aᵐbⁿcᵐ⁺ⁿ | m,n≥1}. Which is CORRECT?",
+        "options": ["Both L1 and L2 are context-free", "L1 is context-free but L2 is not", "L1 is not context-free but L2 is", "Neither L1 nor L2 are context-free"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/89"
+    },
+    {
+        "q": "DFA over Σ={a,b} (refer to state transition diagram). Which language(s) is/are accepted?",
+        "options": ["Set of all strings with even number of b's", "Set of all strings containing pattern bab", "Set of all strings ending with pattern bab", "Set of all strings not containing pattern aba"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/94"
+    },
+    
+    # Data Structures (Q20, Q26, Q34, Q35, Q61, Q62, Q63, Q65)
+    {
+        "q": "Recurrence relation: T(n) = 2T(n-1) + n·2ⁿ for n>0, T(0)=1. Which ONE is CORRECT?",
+        "options": ["T(n) = Θ(n²·2ⁿ)", "T(n) = Θ(n·2ⁿ)", "T(n) = Θ((log n)²·2ⁿ)", "T(n) = Θ(4ⁿ)"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/64"
+    },
+    {
+        "q": "Binary search tree with n distinct integers. Which statement(s) is/are TRUE?",
+        "options": ["Maximum length of path from root node to any other node is (n-1)", "Inorder traversal will always produce sorted sequence", "Finding an element takes O(log₂n) time in worst case", "Every BST is also a Min-Heap"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/70"
+    },
+    {
+        "q": "C program with pointers: void foo(int *p, int x){*p=x;} int main(){int *z; int a=20, b=25; z=&a; foo(z,b); printf('%d',a); return 0;} The output is:",
+        "options": ["20", "25", "45", "Error"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/78"
+    },
+    {
+        "q": "The height of any rooted tree is maximum number of edges in path from root to any leaf. A Min-Heap T stores 32 keys. The height of T is:",
+        "options": ["3", "4", "5", "6"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/79"
+    },
+    {
+        "q": "C program with recursive function foo() on array A[]={0,1,2,2,2,0,0,1,1}. (Refer to image for code) The value printed is:",
+        "options": ["5", "6", "7", "8"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/105"
+    },
+    {
+        "q": "Two linked lists L1 (9 nodes) and L2 (7 nodes). After executing code segment that removes common elements (refer to image), number of nodes in L1:",
+        "options": ["4", "5", "6", "7"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/106"
+    },
+    {
+        "q": "C program gate() function with number manipulation. (Refer to image for code) Output value for gate(14362):",
+        "options": ["136", "143", "146", "162"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/107"
+    },
+    {
+        "q": "Double hashing: h1(k)=k mod 11, h2(k)=1+(k mod 7), table size 11. Keys inserted: 63, 50, 25, 79, 67, 24. Slot where key 24 is stored:",
+        "options": ["0", "1", "2", "3"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/109"
+    },
+    
+    # Digital Logic (Q24, Q25, Q42, Q59, Q60)
+    {
+        "q": "X is a 3-variable Boolean function that produces output '1' when at least two of the input variables are '1'. Which statement(s) is/are CORRECT?",
+        "options": ["X(a,b,X(c,d,e)) = X(X(a,b,c),d,e)", "X(a,b,X(a,b,c)) = X(a,b,c)", "X(a,b,X(a,c,d)) = (X(a,b,a) AND X(c,d,c))", "X(a,b,c) = X(a,X(a,b,c),X(a,c,c))"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/68"
+    },
+    {
+        "q": "The number -6 can be represented as 1010 in 4-bit 2's complement. Which of the following is/are CORRECT 2's complement representation(s) of -6?",
+        "options": ["1000 1010 in 8-bits", "1111 1010 in 8-bits", "1000 0000 0000 1010 in 16-bits", "1111 1111 1111 1010 in 16-bits"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/69"
+    },
+    {
+        "q": "Four-variable Boolean function F(b3,b2,b1,b0) = Σ(0,2,4,8,10,11,12). b3 is MSB, b0 is LSB. Which is CORRECT minimized Boolean expression for F?",
+        "options": ["b̄1·b̄0 + b̄2·b̄0 + b1·b̄2·b3", "b̄1·b̄0 + b̄2·b̄0", "b̄2·b̄0 + b1·b2·b3", "b̄0·b̄2 + b̄3"],
+        "answer": 0,
+        "img_url": "https://t.me/LLB_2024_25/44/86"
+    },
+    {
+        "q": "Finite state machine with input X and output f. (Refer to state transition table in image) Minimum number of states required to realize this FSM:",
+        "options": ["4", "5", "6", "7"],
+        "answer": 1,
+        "img_url": "https://t.me/LLB_2024_25/44/103"
+    },
+    {
+        "q": "Sequential circuit designed using D-Flip-flops, initialized with some value. (Refer to circuit diagram) Number of distinct states before returning to initial state:",
+        "options": ["4", "5", "6", "7"],
+        "answer": 2,
+        "img_url": "https://t.me/LLB_2024_25/44/104"
+    }
+]
+
+# Create the directory structure and save the JSON file
+def create_gate_2025_json():
+    """Creates the questions folder structure and saves GATE 2025 questions"""
+    
+    # Create directory structure
+    base_dir = "questions"
+    gate_dir = os.path.join(base_dir, "gate_pyqs")
+    
+    os.makedirs(gate_dir, exist_ok=True)
+    
+    # Save the JSON file
+    file_path = os.path.join(gate_dir, "gate_2025_cs_set1.json")
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(gate_2025_questions, f, indent=2, ensure_ascii=False)
+    
+    print(f"✅ Successfully created: {file_path}")
+    print(f"📊 Total questions: {len(gate_2025_questions)}")
+    print(f"\n🎯 To use in your bot:")
+    print(f"   1. Make sure this file is in your project directory")
+    print(f"   2. Run your bot with: python bot.py")
+    print(f"   3. Use /tests command to see 'Gate Pyqs | Gate 2025 Cs Set1'")
+    print(f"\n📁 Folder structure created:")
+    print(f"   {base_dir}/")
+    print(f"   └── gate_pyqs/")
+    print(f"       └── gate_2025_cs_set1.json")
+
+if __name__ == "__main__":
+    create_gate_2025_json()
