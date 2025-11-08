@@ -7,10 +7,6 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 import random
 from collections import defaultdict
 import sys
-# ⚠️ WARNING: Using a real token here for an example is risky. 
-# The token is replaced with a placeholder 'PLACEHOLDER_TOKEN' in the code below.
-
-# --- Configuration & Initialization ---
 
 # Check Python version
 if sys.version_info >= (3, 13):
@@ -20,9 +16,10 @@ if sys.version_info >= (3, 13):
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants (Improved Readability & Maintainability)
-# Use a secure method like an environment variable for the real token.
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII') 
+# --- Configuration & Initialization ---
+# ⚠️ CRITICAL: The application now REQUIRES the BOT_TOKEN environment variable to be set.
+# This variable will be None if not set in the environment.
+BOT_TOKEN = os.environ.get('BOT_TOKEN') 
 
 # Define quiz modes and their parameters
 QUIZ_MODES = {
@@ -30,7 +27,7 @@ QUIZ_MODES = {
     'standard_10': {'num_q': 10, 'timed': False, 'label': "📝 Standard (10Q)", 'feedback': True},
     'full_20': {'num_q': 20, 'timed': False, 'label': "🎯 Full Test (20Q)", 'feedback': True},
     'timed_10_300': {'num_q': 10, 'timed': True, 'time_limit': 300, 'label': "⏱️ Timed Challenge (10Q - 5min)", 'feedback': True},
-    # New Simulation Mode: No immediate feedback, single submission.
+    # Simulation Mode: No immediate feedback, single submission.
     'simulation_20_720': {'num_q': 20, 'timed': True, 'time_limit': 720, 'label': "🧠 Full Simulation (20Q - 12min)", 'feedback': False}
 }
 TOPICS = ['algorithms', 'data_structures', 'programming', 'toc']
@@ -39,8 +36,7 @@ TOPICS = ['algorithms', 'data_structures', 'programming', 'toc']
 leaderboard_data = defaultdict(lambda: {'total_score': 0, 'total_questions': 0, 'tests_taken': 0, 'best_score_pct': 0, 'username': 'N/A', 'user_id': 0})
 user_sessions = {} # Active quiz sessions
 
-# --- Question Bank (Retained & Augmented) ---
-# NOTE: Using the augmented structure from the previous response.
+# --- Question Bank (Retained for functionality) ---
 QUESTIONS = {
     'algorithms': [
         {'q': 'What is the time complexity of building a heap of n elements?', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 0, 'img_url': None},
@@ -499,7 +495,7 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             keyboard.append(nav_buttons)
             
             submit_button = []
-            # Only add the submit button if all questions are answered
+            # Only add the submit button if all questions are answered or if on the last question
             if all(a is not None for a in session['answers']):
                  submit_button = [[InlineKeyboardButton("✅ Finish & Submit Test", callback_data='quiz_submit_final')]]
             
@@ -642,8 +638,10 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, messag
 
 def main():
     """Main function - optimized for deployment"""
-    if BOT_TOKEN == '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII':
-        logger.error("❌ ERROR: Please replace the placeholder token with your actual bot token or set BOT_TOKEN environment variable!")
+    # Check if the required BOT_TOKEN environment variable is present
+    if not BOT_TOKEN:
+        logger.error("❌ ERROR: The BOT_TOKEN environment variable is not set. The application cannot start.")
+        # This will cause the application to exit gracefully if the token is missing.
         return
 
     app = (
@@ -676,12 +674,16 @@ def main():
     # Deployment Logic
     if os.environ.get('RENDER'):
         port = int(os.environ.get('PORT', 8080))
-        webhook_url = os.environ.get('RENDER_EXTERNAL_URL', f"https://your-bot-name.onrender.com")
+        webhook_url = os.environ.get('RENDER_EXTERNAL_URL')
         
+        if not webhook_url:
+            logger.error("❌ ERROR: RENDER_EXTERNAL_URL environment variable is missing for webhook setup.")
+            return
+
         if webhook_url.endswith('/'): webhook_url = webhook_url[:-1]
         final_webhook_url = f"{webhook_url}/{BOT_TOKEN}" 
 
-        print(f"✅ Webhook mode active. Listening on port {port}. Webhook URL: {final_webhook_url}")
+        print(f"✅ Webhook mode active. Listening on port {port}.")
         
         app.run_webhook(
             listen="0.0.0.0",
