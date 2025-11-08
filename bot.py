@@ -37,86 +37,146 @@ TOPICS = ['algorithms', 'data_structures', 'programming', 'toc']
 leaderboard_data = defaultdict(lambda: {'total_score': 0, 'total_questions': 0, 'tests_taken': 0, 'best_score_pct': 0, 'username': 'N/A', 'user_id': 0})
 user_sessions = {} # Active quiz sessions
 
-# --- Question Bank (Retained) ---
+# --- Question Bank (UPDATED with Images and New Questions) ---
 QUESTIONS = {
     'algorithms': [
         # --- Original Questions ---
-        {'q': 'What is the time complexity of building a heap of n elements?', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 0},
-        {'q': 'Which sorting algorithm is NOT stable?', 'options': ['Merge Sort', 'Quick Sort', 'Insertion Sort', 'Bubble Sort'], 'answer': 1},
-        {'q': 'Dijkstra algorithm does NOT work correctly with:', 'options': ['Directed graphs', 'Undirected graphs', 'Negative edge weights', 'Weighted graphs'], 'answer': 2},
-        {'q': 'Time complexity of Floyd-Warshall algorithm is:', 'options': ['O(V²)', 'O(V³)', 'O(V² log V)', 'O(VE)'], 'answer': 1},
-        {'q': 'Lower bound for comparison-based sorting is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 1},
-        {'q': 'Which can be solved using greedy algorithm?', 'options': ['0/1 Knapsack', 'Fractional Knapsack', 'LCS', 'Matrix Chain'], 'answer': 1},
-        {'q': 'Best case time complexity of Quick Sort is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 1},
-        {'q': 'Binary Search works only on:', 'options': ['Sorted arrays', 'Unsorted arrays', 'Linked lists', 'Any structure'], 'answer': 0},
-        {'q': 'Time complexity of Merge Sort is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(2^n)'], 'answer': 1},
-        {'q': 'Kruskal algorithm uses which data structure?', 'options': ['Priority Queue', 'Union-Find', 'Stack', 'Queue'], 'answer': 1},
+        {'q': 'What is the time complexity of building a heap of n elements?', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 0, 'img_url': None},
+        {'q': 'Which sorting algorithm is NOT stable?', 'options': ['Merge Sort', 'Quick Sort', 'Insertion Sort', 'Bubble Sort'], 'answer': 1, 'img_url': None},
+        {'q': 'Dijkstra algorithm does NOT work correctly with:', 'options': ['Directed graphs', 'Undirected graphs', 'Negative edge weights', 'Weighted graphs'], 'answer': 2, 'img_url': None},
+        {'q': 'Time complexity of Floyd-Warshall algorithm is:', 'options': ['O(V²)', 'O(V³)', 'O(V² log V)', 'O(VE)'], 'answer': 1, 'img_url': None},
+        {'q': 'Lower bound for comparison-based sorting is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 1, 'img_url': None},
+        {'q': 'Which can be solved using greedy algorithm?', 'options': ['0/1 Knapsack', 'Fractional Knapsack', 'LCS', 'Matrix Chain'], 'answer': 1, 'img_url': None},
+        {'q': 'Best case time complexity of Quick Sort is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], 'answer': 1, 'img_url': None},
+        {'q': 'Binary Search works only on:', 'options': ['Sorted arrays', 'Unsorted arrays', 'Linked lists', 'Any structure'], 'answer': 0, 'img_url': None},
+        {'q': 'Time complexity of Merge Sort is:', 'options': ['O(n)', 'O(n log n)', 'O(n²)', 'O(2^n)'], 'answer': 1, 'img_url': None},
+        {'q': 'Kruskal algorithm uses which data structure?', 'options': ['Priority Queue', 'Union-Find', 'Stack', 'Queue'], 'answer': 1, 'img_url': None},
         # --- Questions from PDF Files (DPP 01 & 02) ---
         {
             'q': 'Sort the functions in ascending order of asymptotic(big-O) complexity:\nf₁(n) = n, f₂(n) = 80, f₃(n) = n^(logn), f₄(n) = log(log²n), f₅(n) = (logn)^(logn)',
             'options': ['f₂(n), f₄(n), f₁(n), f₅(n), f₃(n)', 'f₂(n), f₁(n), f₄(n), f₅(n), f₃(n)', 'f₂(n), f₁(n), f₄(n), f₃(n), f₅(n)', 'f₄(n), f₁(n), f₄(n), f₃(n), f₂(n)'],
-            'answer': 0 #
+            'answer': 0,
+            'img_url': None
         },
         {
             'q': 'Which of the following asymptotic notation is transitive but not reflexive?',
-            # Big Oh and Big Omega are reflexive. Small Oh and Small Omega are not reflexive.
             'options': ['Big Oh (O)', 'Big Omega (Ω)', 'Small Oh (o)', 'Big Theta (Θ)'],
-            'answer': 2 # Small Oh (o) is transitive but not reflexive.
+            'answer': 2,
+            'img_url': None
         },
         {
             'q': 'If f(n) = Σ(i=1 to n) i³, which is the most precise asymptotic bound for f(n)?',
-            # f(n) = Θ(n⁴)
             'options': ['Θ(n⁴)', 'O(n⁵)', 'Ω(n³)', 'O(n⁴ log n)'],
-            'answer': 0 #
+            'answer': 0,
+            'img_url': None
         },
         {
             'q': 'What is the time complexity of the following code? P=n!; for (i=1; i<=n; ++i) for (j=1; j<=P; 2*j) C=C+1;',
-            # Outer loop runs n times. Inner loop runs log(P) = log(n!) = O(n log n) times. Total: O(n² log n).
             'options': ['O(n²)', 'O(n² log n)', 'O(n log n)', 'O(n)'],
-            'answer': 1 #
+            'answer': 1,
+            'img_url': None
         },
         {
             'q': 'What is the time complexity of the following code? i=1; j=1; while (j<=n) { ++i; j=j+i; }',
-            # j is the sum 1+2+...+i. The loop runs until i² ≈ 2n, so i ≈ √n. Complexity is Θ(√n).
             'options': ['Θ(n)', 'Θ(√n)', 'Θ(log n)', 'Θ(n log (log n))'],
-            'answer': 1 #
+            'answer': 1,
+            'img_url': None
+        },
+        # --- NEW Questions (Algorithms) ---
+        {
+            'q': 'What is the complexity of Bellman-Ford algorithm with V vertices and E edges?',
+            'options': ['O(V+E)', 'O(V log V)', 'O(VE)', 'O(E log V)'],
+            'answer': 2,
+            'img_url': None
+        },
+        {
+            'q': 'Maximum number of comparisons in worst-case merge sort for 7 elements is:',
+            'options': ['10', '14', '18', '21'],
+            'answer': 2, 
+            'img_url': None
+        },
+        {
+            'q': 'Which technique is primarily used by the Knuth-Morris-Pratt (KMP) algorithm?',
+            'options': ['Dynamic Programming', 'Greedy Approach', 'Divide and Conquer', 'Pre-processing (Longest Proper Prefix Suffix)'],
+            'answer': 3,
+            'img_url': None
         }
     ],
     'data_structures': [
-        {'q': 'Best data structure for LRU cache?', 'options': ['Array', 'Stack', 'HashMap + DLL', 'BST'], 'answer': 2},
-        {'q': 'Binary tree with n nodes has how many NULL pointers?', 'options': ['n', 'n+1', 'n-1', '2n'], 'answer': 1},
-        {'q': 'Average search time in hash table with chaining:', 'options': ['O(1)', 'O(log n)', 'O(1 + α)', 'O(n)'], 'answer': 2},
-        {'q': 'Space complexity of adjacency matrix (V vertices):', 'options': ['O(V)', 'O(V²)', 'O(V + E)', 'O(E)'], 'answer': 1},
-        {'q': 'Which traversal gives sorted order in BST?', 'options': ['Preorder', 'Inorder', 'Postorder', 'Level order'], 'answer': 1},
-        {'q': 'Maximum nodes in binary tree of height h:', 'options': ['2^h - 1', '2^(h+1) - 1', '2^h', '2^(h-1)'], 'answer': 1},
-        {'q': 'Stack is useful for:', 'options': ['BFS', 'Level order', 'DFS', 'Dijkstra'], 'answer': 2},
-        {'q': 'Height of AVL tree with n nodes is:', 'options': ['O(n)', 'O(log n)', 'O(n log n)', 'O(√n)'], 'answer': 1},
-        {'q': 'Time to delete from middle of doubly linked list:', 'options': ['O(1)', 'O(n)', 'O(log n)', 'Cannot'], 'answer': 0},
-        {'q': 'Best cache performance collision resolution:', 'options': ['Chaining', 'Linear probing', 'Quadratic', 'Double hash'], 'answer': 1}
+        {'q': 'Best data structure for LRU cache?', 'options': ['Array', 'Stack', 'HashMap + DLL', 'BST'], 'answer': 2, 'img_url': None},
+        {'q': 'Binary tree with n nodes has how many NULL pointers?', 'options': ['n', 'n+1', 'n-1', '2n'], 'answer': 1, 'img_url': None},
+        {'q': 'Average search time in hash table with chaining:', 'options': ['O(1)', 'O(log n)', 'O(1 + α)', 'O(n)'], 'answer': 2, 'img_url': None},
+        {'q': 'Space complexity of adjacency matrix (V vertices):', 'options': ['O(V)', 'O(V²)', 'O(V + E)', 'O(E)'], 'answer': 1, 'img_url': None},
+        {'q': 'Which traversal gives sorted order in BST?', 'options': ['Preorder', 'Inorder', 'Postorder', 'Level order'], 'answer': 1, 'img_url': None},
+        {'q': 'Maximum nodes in binary tree of height h (root at 0):', 'options': ['2^h - 1', '2^(h+1) - 1', '2^h', '2^(h-1)'], 'answer': 1, 'img_url': None},
+        {'q': 'Stack is useful for:', 'options': ['BFS', 'Level order', 'DFS', 'Dijkstra'], 'answer': 2, 'img_url': None},
+        {'q': 'Height of AVL tree with n nodes is:', 'options': ['O(n)', 'O(log n)', 'O(n log n)', 'O(√n)'], 'answer': 1, 'img_url': None},
+        {'q': 'Time to delete from middle of doubly linked list (pointer to node given):', 'options': ['O(1)', 'O(n)', 'O(log n)', 'Cannot'], 'answer': 0, 'img_url': None},
+        {'q': 'Best cache performance collision resolution:', 'options': ['Chaining', 'Linear probing', 'Quadratic', 'Double hash'], 'answer': 1, 'img_url': None},
+        # --- NEW Questions (Data Structures) ---
+        {
+            'q': 'The maximum number of edges in a simple graph with V vertices is:',
+            'options': ['V(V-1)', 'V(V-1)/2', 'V² - V', 'V²'],
+            'answer': 1,
+            'img_url': None
+        },
+        {
+            'q': 'What is the worst-case space complexity of a Hash Table using separate chaining?',
+            'options': ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
+            'answer': 2,
+            'img_url': None
+        }
     ],
     'programming': [
-        {'q': 'Size of pointer on 64-bit system:', 'options': ['4 bytes', '8 bytes', 'Depends', '2 bytes'], 'answer': 1},
-        {'q': 'Default value of static variable:', 'options': ['Garbage', '0', 'NULL', '-1'], 'answer': 1},
-        {'q': 'Where are global variables stored?', 'options': ['Stack', 'Heap', 'Data segment', 'Code segment'], 'answer': 2},
-        {'q': 'Which allocates memory dynamically?', 'options': ['alloc()', 'malloc()', 'new', 'allocate()'], 'answer': 1},
-        {'q': 'calloc() initializes memory with:', 'options': ['Garbage', '0', 'NULL', '-1'], 'answer': 1},
-        {'q': 'Double free() causes:', 'options': ['Nothing', 'Freed again', 'Undefined behavior', 'Compile error'], 'answer': 2},
-        {'q': 'Array passed to function is passed as:', 'options': ['Value', 'Reference', 'Copy', 'Constant'], 'answer': 1},
-        {'q': 'Scope of static variable in function:', 'options': ['Function only', 'Entire file', 'Program', 'Block only'], 'answer': 0},
-        {'q': 'Union stores:', 'options': ['All members', 'Last assigned', 'First member', 'No member'], 'answer': 1},
-        {'q': 'Left shift by 1 is equivalent to:', 'options': ['Divide by 2', 'Multiply by 2', 'Add 1', 'Subtract 1'], 'answer': 1}
+        {'q': 'Size of pointer on 64-bit system:', 'options': ['4 bytes', '8 bytes', 'Depends', '2 bytes'], 'answer': 1, 'img_url': None},
+        {'q': 'Default value of static variable:', 'options': ['Garbage', '0', 'NULL', '-1'], 'answer': 1, 'img_url': None},
+        {'q': 'Where are global variables stored?', 'options': ['Stack', 'Heap', 'Data segment', 'Code segment'], 'answer': 2, 'img_url': None},
+        {'q': 'Which allocates memory dynamically in C?', 'options': ['alloc()', 'malloc()', 'new', 'allocate()'], 'answer': 1, 'img_url': None},
+        {'q': 'calloc() initializes memory with:', 'options': ['Garbage', '0', 'NULL', '-1'], 'answer': 1, 'img_url': None},
+        {'q': 'Double free() causes:', 'options': ['Nothing', 'Freed again', 'Undefined behavior', 'Compile error'], 'answer': 2, 'img_url': None},
+        {'q': 'Array passed to function is passed as:', 'options': ['Value', 'Reference', 'Copy', 'Constant'], 'answer': 1, 'img_url': None},
+        {'q': 'Scope of static variable in function:', 'options': ['Function only', 'Entire file', 'Program', 'Block only'], 'answer': 0, 'img_url': None},
+        {'q': 'Union stores:', 'options': ['All members', 'Last assigned', 'First member', 'No member'], 'answer': 1, 'img_url': None},
+        {'q': 'Left shift by 1 is equivalent to:', 'options': ['Divide by 2', 'Multiply by 2', 'Add 1', 'Subtract 1'], 'answer': 1, 'img_url': None},
+        # --- NEW Questions (Programming) ---
+        {
+            'q': 'What does `volatile` keyword in C/C++ prevent?',
+            'options': ['Type casting', 'Compiler optimization', 'Memory leak', 'Function recursion'],
+            'answer': 1,
+            'img_url': None
+        },
+        {
+            'q': 'What is the output of `print(10/3)` in Python 3?',
+            'options': ['3', '3.333', '3.0', 'Error'],
+            'answer': 1,
+            'img_url': None
+        }
     ],
     'toc': [
-        {'q': 'DFA accepts which language class?', 'options': ['Context-free', 'Regular', 'Context-sensitive', 'Recursive'], 'answer': 1},
-        {'q': 'Which is NOT regular?', 'options': ['a^n b^n', 'a^n', '(ab)^n', 'a^n b^m'], 'answer': 0},
-        {'q': 'Grammar is ambiguous if:', 'options': ['Left recursion', 'No strings', 'Multiple parse trees', 'ε-productions'], 'answer': 2},
-        {'q': 'Halting problem is:', 'options': ['Decidable', 'Undecidable', 'Regular', 'Context-free'], 'answer': 1},
-        {'q': 'CFLs are NOT closed under:', 'options': ['Union', 'Concatenation', 'Intersection', 'Kleene star'], 'answer': 2},
-        {'q': 'PDA accepts by:', 'options': ['Final state only', 'Empty stack only', 'Both equivalent', 'Initial state'], 'answer': 2},
-        {'q': 'Turing Machine more powerful than PDA because:', 'options': ['Infinite tape', 'Bidirectional', 'Can modify', 'All above'], 'answer': 3},
-        {'q': 'Chomsky hierarchy (most to least restrictive):', 'options': ['Reg ⊂ CFL ⊂ CSL ⊂ RE', 'CFL ⊂ Reg', 'Reg ⊂ CSL ⊂ CFL', 'RE ⊂ CSL'], 'answer': 0},
-        {'q': 'Regular languages closed under:', 'options': ['Intersection', 'Complement', 'Union', 'All above'], 'answer': 3},
-        {'q': 'Which is decidable for CFLs?', 'options': ['Membership', 'Equivalence', 'Intersection empty', 'Universality'], 'answer': 0}
+        {'q': 'DFA accepts which language class?', 'options': ['Context-free', 'Regular', 'Context-sensitive', 'Recursive'], 'answer': 1, 'img_url': None},
+        {'q': 'Which is NOT regular?', 'options': ['a^n b^n', 'a^n', '(ab)^n', 'a^n b^m'], 'answer': 0, 'img_url': None},
+        {'q': 'Grammar is ambiguous if:', 'options': ['Left recursion', 'No strings', 'Multiple parse trees', 'ε-productions'], 'answer': 2, 'img_url': None},
+        {'q': 'Halting problem is:', 'options': ['Decidable', 'Undecidable', 'Regular', 'Context-free'], 'answer': 1, 'img_url': None},
+        {'q': 'CFLs are NOT closed under:', 'options': ['Union', 'Concatenation', 'Intersection', 'Kleene star'], 'answer': 2, 'img_url': None},
+        {'q': 'PDA accepts by:', 'options': ['Final state only', 'Empty stack only', 'Both equivalent', 'Initial state'], 'answer': 2, 'img_url': None},
+        {'q': 'Turing Machine more powerful than PDA because:', 'options': ['Infinite tape', 'Bidirectional', 'Can modify', 'All above'], 'answer': 3, 'img_url': None},
+        {'q': 'Chomsky hierarchy (most to least restrictive):', 'options': ['Reg ⊂ CFL ⊂ CSL ⊂ RE', 'CFL ⊂ Reg', 'Reg ⊂ CSL ⊂ CFL', 'RE ⊂ CSL'], 'answer': 0, 'img_url': None},
+        {'q': 'Regular languages closed under:', 'options': ['Intersection', 'Complement', 'Union', 'All above'], 'answer': 3, 'img_url': None},
+        {'q': 'Which is decidable for CFLs?', 'options': ['Membership', 'Equivalence', 'Intersection empty', 'Universality'], 'answer': 0, 'img_url': None},
+        # --- NEW Question with Image URL (TOC) ---
+        {
+            'q': 'The possible number of DFA with 2 states X, Y, where X is always initial state over the alphabet {a, b}, that accepts (a+b)* is-',
+            'options': ['32', '20', '24', '64'],
+            'answer': 3,
+            # The URL provided in the image
+            'img_url': 'https://t.me/LLB_2024_25/34/38' 
+        },
+        {
+            'q': 'Pumping Lemma is generally used for proving that a language is:',
+            'options': ['Regular', 'Context-Free', 'Not Regular', 'Not Context-Free'],
+            'answer': 2,
+            'img_url': None
+        }
     ]
 }
 
@@ -138,11 +198,12 @@ def format_time(seconds: float) -> str:
 async def send_message_robust(context: ContextTypes.DEFAULT_TYPE, chat_id: int, text: str, reply_markup=None):
     """Sends a message, handling common Telegram API errors."""
     try:
+        # Use HTML parse_mode for better link handling (especially for Telegram deep links)
         return await context.bot.send_message(
             chat_id=chat_id, 
             text=text, 
             reply_markup=reply_markup, 
-            parse_mode='Markdown'
+            parse_mode='HTML' # Changed to HTML to support link formatting
         )
     except error.TelegramError as e:
         logger.error(f"Failed to send message to {chat_id}: {e}")
@@ -152,10 +213,11 @@ async def send_message_robust(context: ContextTypes.DEFAULT_TYPE, chat_id: int, 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
-    text = f"""🎓 *Welcome {user.first_name} to GATE CSE Quiz Bot!*
+    # Note: Using HTML tags <b> and <i> instead of Markdown * and _ due to global parse_mode change
+    text = f"""🎓 <b>Welcome {user.first_name} to GATE CSE Quiz Bot!</b>
 Ready to test your knowledge? Choose a quiz mode or a specific topic!
 
-📚 *Commands:*
+📚 <b>Commands:</b>
 /quiz - Select your challenge mode
 /topics - Focus on a specific subject
 /leaderboard - Top 10 rankers globally
@@ -163,7 +225,7 @@ Ready to test your knowledge? Choose a quiz mode or a specific topic!
 /help - Complete guide and info
 
 Start your preparation now! 🚀"""
-    await update.message.reply_text(text, parse_mode='Markdown')
+    await update.message.reply_text(text, parse_mode='HTML')
 
 async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show quiz mode selection"""
@@ -174,9 +236,9 @@ async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard.append([InlineKeyboardButton("➡️ Choose Topic Instead", callback_data='topics_redirect')]) 
     
     await update.message.reply_text(
-        "🎮 *Select Quiz Mode:*\n\nChoose difficulty and type:",
+        "🎮 <b>Select Quiz Mode:</b>\n\nChoose difficulty and type:",
         reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
+        parse_mode='HTML'
     )
 
 async def topics(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -188,7 +250,7 @@ async def topics(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         [InlineKeyboardButton("🔤 TOC", callback_data='topic_select_toc')],
         [InlineKeyboardButton("🎲 Random Mix (10Q)", callback_data='topic_select_random')]
     ]
-    await update.message.reply_text('📚 *Choose Topic:*', reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    await update.message.reply_text('📚 <b>Choose Topic:</b>', reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='HTML')
 
 async def leaderboard_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show full leaderboard"""
@@ -196,18 +258,18 @@ async def leaderboard_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.message.reply_text("📊 No rankings yet. Start with /quiz to register your score!")
         return
     
-    text = "🏆 *GLOBAL LEADERBOARD - TOP 10*\n\n"
+    text = "🏆 <b>GLOBAL LEADERBOARD - TOP 10</b>\n\n"
     # Key change: Sort by 'best_score_pct'
     top_users = sorted(leaderboard_data.items(), key=lambda x: x[1]['best_score_pct'], reverse=True)[:10]
     
     for i, (uid, data) in enumerate(top_users, 1):
         medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"{i}."
         avg_score = (data['total_score'] / data['total_questions'] * 100) if data['total_questions'] > 0 else 0
-        text += f"{medal} *{data['username']}*\n"
-        text += f"   Best: {data['best_score_pct']:.1f}% | Avg: {avg_score:.1f}%\n"
-        text += f"   Tests: {data['tests_taken']}\n\n"
+        text += f"{medal} <b>{data['username']}</b>\n"
+        text += f"  Best: {data['best_score_pct']:.1f}% | Avg: {avg_score:.1f}%\n"
+        text += f"  Tests: {data['tests_taken']}\n\n"
     
-    await update.message.reply_text(text, parse_mode='Markdown')
+    await update.message.reply_text(text, parse_mode='HTML')
 
 async def mystats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show user statistics"""
@@ -221,7 +283,7 @@ async def mystats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     avg_score = (user_data['total_score'] / user_data['total_questions'] * 100) if user_data['total_questions'] > 0 else 0
     
-    text = f"📊 *Your Personalized Stats*\n\n"
+    text = f"📊 <b>Your Personalized Stats</b>\n\n"
     text += f"👤 User: {user_data.get('username', user.first_name)}\n"
     text += f"🎯 Best Score: {user_data['best_score_pct']:.1f}%\n"
     text += f"📈 Average Score: {avg_score:.1f}%\n"
@@ -231,34 +293,34 @@ async def mystats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Recent history (Improved formatting for clarity)
     history = context.user_data.get('history', [])
     if history:
-        text += "*Recent 5 Quizzes:*\n"
+        text += "<b>Recent 5 Quizzes:</b>\n"
         for i, r in enumerate(history[-5:], 1):
             emoji = "🎉" if r['pct'] >= 75 else "👍" if r['pct'] >= 60 else "📚"
             text += f"{emoji} {r['score']}/{r['total']} ({r['pct']:.0f}%) in {r.get('time', 'N/A')}\n"
     
-    await update.message.reply_text(text, parse_mode='Markdown')
+    await update.message.reply_text(text, parse_mode='HTML')
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show help message"""
-    text = """📖 *Complete Guide*
+    text = """📖 <b>Complete Guide</b>
 
-*🎮 Quiz Modes:*
+<b>🎮 Quiz Modes:</b>
 • /quiz: General modes (Quick, Standard, Full, Timed)
 • /topics: Focus on Algorithms, DS, Programming, or TOC.
 
-*🏆 Features:*
-• Real-time Global Leaderboard (`/leaderboard`)
-• Detailed Personal Stats (`/mystats`)
+<b>🏆 Features:</b>
+• Real-time Global Leaderboard (<code>/leaderboard</code>)
+• Detailed Personal Stats (<code>/mystats</code>)
 • Immediate feedback after each question.
 • Timed challenges for speed practice.
 
-*💡 Quick Tips:*
-• Your score is calculated on your *best* quiz percentage!
-• Time taken matters most in *Timed* mode.
-• For suggestions or bugs, contact the developer (if applicable).
+<b>💡 Quick Tips:</b>
+• Your score is calculated on your <i>best</i> quiz percentage!
+• Time taken matters most in <i>Timed</i> mode.
+• For questions with diagrams, look for the 'View Diagram/Image' link.
 
 Good luck! 🚀"""
-    await update.message.reply_text(text, parse_mode='Markdown')
+    await update.message.reply_text(text, parse_mode='HTML')
 
 # --- Callback Query Handlers ---
 
@@ -288,6 +350,7 @@ async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_T
         time_limit = config.get('time_limit')
     
     elif data in TOPICS or data == 'random': # Topic selection (defaults to 10 questions, non-timed)
+        # Using a fixed default for topic quizzes
         num_q = 10 
         is_timed = False
         time_limit = None
@@ -329,14 +392,14 @@ async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_T
     leaderboard_data[user_id]['username'] = user.username or user.first_name
     leaderboard_data[user_id]['user_id'] = user_id
 
-    text = f"🎯 *Quiz Started!*\n\n"
+    text = f"🎯 <b>Quiz Started!</b>\n\n"
     text += f"📝 Questions: {len(selected)}\n"
     if is_timed:
         text += f"⏱️ Time Limit: {time_limit//60} minutes ({time_limit} seconds)\n"
     text += f"\nGet ready! 💪"
     
     try:
-        await query.edit_message_text(text, parse_mode='Markdown')
+        await query.edit_message_text(text, parse_mode='HTML')
     except error.BadRequest:
         # If the message hasn't changed, Telegram throws an error. Ignore it.
         pass 
@@ -363,7 +426,7 @@ async def quiz_timer(user_id: int, context: ContextTypes.DEFAULT_TYPE, time_limi
             await send_message_robust(
                 context, 
                 chat_id, 
-                "⏰ *Time's Up!*\n\nQuiz automatically ended. Here are your results:",
+                "⏰ <b>Time's Up!</b>\n\nQuiz automatically ended. Here are your results:",
             )
             await finalize_quiz(user_id, context)
             
@@ -374,7 +437,7 @@ async def quiz_timer(user_id: int, context: ContextTypes.DEFAULT_TYPE, time_limi
         logger.error(f"Quiz Timer Error for user {user_id}: {e}")
 
 async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: int) -> None:
-    """Sends the current question in the session."""
+    """Sends the current question in the session, including an image link if available."""
     session = user_sessions.get(user_id)
     if not session:
         return
@@ -393,9 +456,17 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: in
             await finalize_quiz(user_id, context)
             return
 
-        time_info = f"⏱️ Time Left: *{format_time(remaining)}*\n\n"
+        time_info = f"⏱️ Time Left: <b>{format_time(remaining)}</b>\n\n"
     
-    text = f"{time_info}❓ *Q{q_index+1}/{len(session['questions'])}*\n\n{q['q']}\n\n"
+    # --- IMAGE HANDLING LOGIC ---
+    image_url = q.get('img_url')
+    text_image = ""
+    if image_url:
+        # Using HTML <a> tag for a clickable link to the image/diagram
+        text_image = f"<a href='{image_url}'>[🖼️ <b>View Diagram/Image</b>]</a>\n\n"
+    # --- END IMAGE HANDLING LOGIC ---
+
+    text = f"{time_info}❓ <b>Q{q_index+1}/{len(session['questions'])}</b>\n\n{text_image}{q['q']}\n\n"
     keyboard = [[InlineKeyboardButton(f"{chr(65+i)}. {opt}", callback_data=f'answer_submit_{i}')] 
                 for i, opt in enumerate(q['options'])]
     
@@ -408,14 +479,14 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     user_id = update.effective_user.id
     
     if user_id not in user_sessions:
-        await query.edit_message_text("⚠️ Quiz session expired. Use /quiz to start again.", parse_mode='Markdown')
+        await query.edit_message_text("⚠️ Quiz session expired. Use /quiz to start again.", parse_mode='HTML')
         return
     
     session = user_sessions[user_id]
     
     # Time expired check (essential for a reliable timed mode)
     if session.get('is_timed') and (datetime.now() - session['start_time']).total_seconds() > session['time_limit']:
-        await query.edit_message_text("⏰ Time expired while answering!", parse_mode='Markdown')
+        await query.edit_message_text("⏰ Time expired while answering!", parse_mode='HTML')
         await finalize_quiz(user_id, context)
         return
     
@@ -427,14 +498,14 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     # 1. Update Session and Feedback
     if is_correct:
         session['score'] += 1
-        text = f"✅ *Q{session['current']+1}: Correct!* (+1 Point)\n\nAnswer: {chr(65+correct)}. {q['options'][correct]}"
+        text = f"✅ <b>Q{session['current']+1}: Correct!</b> (+1 Point)\n\nAnswer: {chr(65+correct)}. {q['options'][correct]}"
     else:
-        text = f"❌ *Q{session['current']+1}: Wrong!*\n\nYour Answer: {chr(65+user_ans)}. {q['options'][user_ans]}\nCorrect Answer: {chr(65+correct)}. {q['options'][correct]}"
+        text = f"❌ <b>Q{session['current']+1}: Wrong!</b>\n\nYour Answer: {chr(65+user_ans)}. {q['options'][user_ans]}\nCorrect Answer: {chr(65+correct)}. {q['options'][correct]}"
     
     session['answers'].append(is_correct)
     
     try:
-        await query.edit_message_text(text, parse_mode='Markdown')
+        await query.edit_message_text(text, parse_mode='HTML')
     except error.BadRequest:
         # Ignore if the message was already edited by an answer from a previous question
         pass
@@ -442,7 +513,8 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     # 2. Advance to Next Question or Finalize
     session['current'] += 1
     if session['current'] < len(session['questions']):
-        await send_question(query.message, context, user_id)
+        # We use query.message here as a reference to the chat message context
+        await send_question(query.message, context, user_id) 
     else:
         # Quiz is finished (manually by completing questions)
         if session.get('timer_task'):
@@ -472,8 +544,8 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, messag
     user_data['best_score_pct'] = max(user_data['best_score_pct'], pct)
     
     # Result Message Construction
-    text = f"🎯 *Quiz Complete!*\n\n"
-    text += f"📊 Score: {score}/{total} (*{pct:.1f}%*)\n"
+    text = f"🎯 <b>Quiz Complete!</b>\n\n"
+    text += f"📊 Score: {score}/{total} (<b>{pct:.1f}%</b>)\n"
     text += f"⏱️ Time Taken: {time_str}\n\n"
     
     # Dynamic Feedback
@@ -490,16 +562,16 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, messag
     correct_count = session['answers'].count(True)
     wrong_count = session['answers'].count(False)
     progress_bar = "✅" * correct_count + "❌" * wrong_count
-    text += f"\n*Detailed Progress*:\n`{progress_bar}`\n"
+    text += f"\n<b>Detailed Progress</b>:\n<code>{progress_bar}</code>\n"
     
     # Top 5 Leaderboard Snapshot
-    text += "\n🏆 *TOP 5 LEADERBOARD SNAPSHOT*\n"
+    text += "\n🏆 <b>TOP 5 LEADERBOARD SNAPSHOT</b>\n"
     top_users = sorted(leaderboard_data.items(), key=lambda x: x[1]['best_score_pct'], reverse=True)[:5]
     
     for i, (uid, data) in enumerate(top_users, 1):
         medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "🏅"
         # Highlight current user in the snapshot
-        name = f"*{data['username']}* (You)" if uid == user_id else data['username']
+        name = f"<b>{data['username']}</b> (You)" if uid == user_id else data['username']
         text += f"{medal} {name}: {data['best_score_pct']:.1f}%\n"
     
     text += "\n/quiz - New Test | /leaderboard - Full Ranks"
@@ -518,7 +590,7 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, messag
     
     # Send the final result message
     if message:
-        await message.reply_text(text, parse_mode='Markdown')
+        await message.reply_text(text, parse_mode='HTML')
     else:
         # Used by the timer function if a message object isn't available
         await send_message_robust(context, user_id, text)
@@ -531,8 +603,9 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, messag
 
 def main():
     """Main function - optimized for deployment"""
-    if BOT_TOKEN == 'PLACEHOLDER_TOKEN':
-        logger.error("❌ ERROR: Please replace 'PLACEHOLDER_TOKEN' with your actual bot token or set BOT_TOKEN environment variable!")
+    # Check for placeholder token.
+    if BOT_TOKEN == '8590474160:AAEMFKT_hyCF3qRROu0BrlqIbTii0HikxII':
+        logger.error("❌ ERROR: Please replace the placeholder token with your actual bot token or set BOT_TOKEN environment variable!")
         return
 
     # Using Application.builder() for modern, robust setup
@@ -586,5 +659,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
