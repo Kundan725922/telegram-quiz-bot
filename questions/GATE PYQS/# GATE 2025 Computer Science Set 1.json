@@ -1,12 +1,6 @@
 """
-GATE 2025 CS Set 1 - JSON File Generator
-Create this structure in your 'questions' folder:
-
-questions/
-├── gate_pyqs/
-│   └── gate_2025_cs_set1.json
-
-Run this script to generate the JSON file.
+GATE 2025 CS Set 1 - JSON File Generator (FIXED VERSION)
+This matches your actual folder structure
 """
 
 import json
@@ -14,7 +8,7 @@ import os
 
 # GATE 2025 CS Set 1 Complete Question Bank
 gate_2025_questions = [
-    # General Aptitude (Q1-Q10) - 1 mark each for Q1-Q5, 2 marks for Q6-Q10
+    # General Aptitude (Q1-Q10)
     {
         "q": "Ravi had ______ younger brother who taught at ______ university. He was widely regarded as ______ honorable man. Select the option with the correct sequence of articles to fill in the blanks.",
         "options": ["a; a; an", "the; an; a", "a; an; a", "an; an; a"],
@@ -442,17 +436,16 @@ gate_2025_questions = [
     }
 ]
 
-# Create the directory structure and save the JSON file
 def create_gate_2025_json():
     """Creates the questions folder structure and saves GATE 2025 questions"""
     
-    # Create directory structure
+    # FIXED: Match your actual folder structure
     base_dir = "questions"
-    gate_dir = os.path.join(base_dir, "gate_pyqs")
+    gate_dir = os.path.join(base_dir, "GATE PYQS")  # Changed to match your folder
     
     os.makedirs(gate_dir, exist_ok=True)
     
-    # Save the JSON file
+    # FIXED: Remove the '#' and use underscores
     file_path = os.path.join(gate_dir, "gate_2025_cs_set1.json")
     
     with open(file_path, 'w', encoding='utf-8') as f:
@@ -463,11 +456,13 @@ def create_gate_2025_json():
     print(f"\n🎯 To use in your bot:")
     print(f"   1. Make sure this file is in your project directory")
     print(f"   2. Run your bot with: python bot.py")
-    print(f"   3. Use /tests command to see 'Gate Pyqs | Gate 2025 Cs Set1'")
+    print(f"   3. Use /tests command to see the quiz")
     print(f"\n📁 Folder structure created:")
     print(f"   {base_dir}/")
-    print(f"   └── gate_pyqs/")
+    print(f"   └── GATE PYQS/")
     print(f"       └── gate_2025_cs_set1.json")
+    print(f"\n💡 The bot will show it as:")
+    print(f"   '📖 Gate Pyqs | Gate 2025 Cs Set1'")
 
 if __name__ == "__main__":
     create_gate_2025_json()
