@@ -2,7 +2,7 @@ import logging
 import os
 import asyncio
 from datetime import datetime, timedelta
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, error
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, error, WebAppInfo
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 import random
 from collections import defaultdict
@@ -33,6 +33,7 @@ QUIZ_MODES = {
 # Global state
 leaderboard_data = defaultdict(lambda: {'total_score': 0, 'total_questions': 0, 'tests_taken': 0, 'best_score_pct': 0, 'username': 'N/A', 'user_id': 0})
 user_sessions = {}
+completed_quizzes = {}  # Store completed quiz data for review
 
 # --- DYNAMIC TOPIC LOADING (NO HARDCODING NEEDED!) ---
 def get_all_topic_files() -> dict:
@@ -159,6 +160,10 @@ def format_time(seconds: float) -> str:
     seconds = int(seconds % 60)
     return f"{minutes:02d}:{seconds:02d}"
 
+def has_calculator_emoji(question_text: str) -> bool:
+    """Check if question needs calculator (has 🧮 emoji)"""
+    return "🧮" in question_text
+
 async def send_message_robust(context: ContextTypes.DEFAULT_TYPE, chat_id: int, text: str, reply_markup=None):
     """Sends a message, handling common Telegram API errors."""
     try:
@@ -187,8 +192,14 @@ Ready to test your knowledge? Choose a quiz mode or a specific topic!
 /leaderboard - Top 10 rankers globally
 /mystats - Your personalized analytics
 /help - Complete guide and info
+/quite - exit the test
 
-<b>🔥 NEW:</b> ALL PYQS AVALIBLE SHORTLY year vise
+<b>🔥 NEW Features:</b>
+✅ Detailed answer review after quiz
+✅ Calculator button for numerical questions
+✅ MSQ (Multiple Select Questions) support
+✅ Comprehensive explanations for every question
+
 Start your preparation now! 🚀"""
     await update.message.reply_text(text, parse_mode='HTML')
 
@@ -356,7 +367,14 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: in
 
     q_data = questions[q_index]
     
-    header = f"❓ <b>Question {q_index + 1}/{len(questions)}</b>\n"
+    # Determine question type from question text
+    q_type = "MCQ"
+    if q_data['q'].startswith('[MSQ]'):
+        q_type = "MSQ"
+    elif q_data['q'].startswith('[NAT]'):
+        q_type = "NAT"
+    
+    header = f"❓ <b>Question {q_index + 1}/{len(questions)}</b> [{q_type}]\n"
     if session['is_timed']:
         elapsed = (datetime.now() - session['start_time']).total_seconds()
         remaining = session['time_limit'] - elapsed
@@ -366,10 +384,23 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: in
     question_text = f"{header}\n{q_data['q']}"
 
     keyboard = []
+    
+    # Check if MSQ (multiple answers possible)
+    is_msq = isinstance(q_data.get('answer'), list)
+    user_answers = session['answers'][q_index] if session['answers'][q_index] else []
+    if not isinstance(user_answers, list):
+        user_answers = [user_answers] if user_answers is not None else []
+    
     for i, option in enumerate(q_data['options']):
-        prefix = "✅ " if session['answers'][q_index] == i else ""
-        keyboard.append([InlineKeyboardButton(f"{prefix}{chr(65+i)}. {option}", callback_data=f'answer_submit_{i}')])
-        
+        prefix = "✅ " if i in user_answers else ""
+        button_text = f"{prefix}{chr(65+i)}. {option}"
+        keyboard.append([InlineKeyboardButton(button_text, callback_data=f'answer_submit_{i}')])
+    
+    # Add Clear Selection button for MSQ
+    if is_msq and user_answers:
+        keyboard.append([InlineKeyboardButton("🗑️ Clear Selection", callback_data='answer_clear')])
+    
+    # Navigation buttons
     nav_buttons = []
     if q_index > 0:
         nav_buttons.append(InlineKeyboardButton("⬅️ Prev", callback_data='quiz_nav_prev'))
@@ -377,6 +408,10 @@ async def send_question(message, context: ContextTypes.DEFAULT_TYPE, user_id: in
         nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data='quiz_nav_next'))
     if nav_buttons:
         keyboard.append(nav_buttons)
+    
+    # Add calculator button if question has 🧮 emoji
+    if has_calculator_emoji(q_data['q']):
+        keyboard.append([InlineKeyboardButton("🧮 Open Calculator", web_app=WebAppInfo(url="https://www.desmos.com/scientific"))])
     
     keyboard.append([InlineKeyboardButton("🏁 SUBMIT FINAL ANSWERS 🏁", callback_data='quiz_submit_final')])
 
@@ -413,6 +448,10 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     elif data == 'quiz_submit_final':
         await finalize_quiz(user_id, context)
         return
+    elif data == 'answer_clear':
+        session['answers'][q_index] = []
+        await send_question(query.message, context, user_id)
+        return
 
     if data.startswith('answer_submit_'):
         try:
@@ -420,9 +459,27 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         except ValueError:
             return
 
-        session['answers'][q_index] = selected_option
+        # Check if MSQ
+        q_data = questions[q_index]
+        is_msq = isinstance(q_data.get('answer'), list)
         
-        if session['instant_feedback']:
+        if is_msq:
+            # MSQ: Toggle selection
+            current_answers = session['answers'][q_index] if session['answers'][q_index] else []
+            if not isinstance(current_answers, list):
+                current_answers = []
+            
+            if selected_option in current_answers:
+                current_answers.remove(selected_option)
+            else:
+                current_answers.append(selected_option)
+            
+            session['answers'][q_index] = sorted(current_answers)
+        else:
+            # MCQ/NAT: Single selection
+            session['answers'][q_index] = selected_option
+        
+        if session['instant_feedback'] and not is_msq:
             correct_answer = questions[q_index]['answer']
             if selected_option == correct_answer:
                 feedback = "✅ <b>Correct Answer!</b> Moving to the next question."
@@ -447,9 +504,17 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, timed_
 
     final_score = 0
     total_q = len(session['questions'])
+    
+    # Calculate score handling both MSQ and MCQ
     for q_data, user_ans in zip(session['questions'], session['answers']):
-        if user_ans == q_data['answer']:
-            final_score += 1
+        correct_ans = q_data['answer']
+        
+        if isinstance(correct_ans, list):  # MSQ
+            if isinstance(user_ans, list) and sorted(user_ans) == sorted(correct_ans):
+                final_score += 1
+        else:  # MCQ/NAT
+            if user_ans == correct_ans:
+                final_score += 1
             
     score_pct = (final_score / total_q) * 100 if total_q > 0 else 0
     time_taken = (datetime.now() - session['start_time']).total_seconds()
@@ -460,6 +525,16 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, timed_
     stats['tests_taken'] += 1
     stats['best_score_pct'] = max(stats['best_score_pct'], score_pct)
 
+    # Store completed quiz for review
+    quiz_key = f"{user_id}_{int(datetime.now().timestamp())}"
+    completed_quizzes[quiz_key] = {
+        'questions': session['questions'],
+        'user_answers': session['answers'],
+        'score': final_score,
+        'total': total_q,
+        'score_pct': score_pct
+    }
+
     status_text = "⚠️ <b>TIME UP!</b> Your quiz has automatically submitted." if timed_out else "✅ <b>Quiz Complete!</b>"
     
     result_text = f"🎉 {status_text}\n\n"
@@ -469,233 +544,397 @@ async def finalize_quiz(user_id: int, context: ContextTypes.DEFAULT_TYPE, timed_
     result_text += f"⏱️ Time Taken: <b>{format_time(time_taken)}</b>"
 
     keyboard = [
-        [InlineKeyboardButton("👀 Review Answers", callback_data='post_quiz_action_review')],
+        [InlineKeyboardButton("👀 Review Answers", callback_data=f'review_start_{quiz_key}')],
         [InlineKeyboardButton("🆕 Start New Quiz", callback_data='post_quiz_action_new')]
     ]
     
     await send_message_robust(context, session['chat_id'], result_text, reply_markup=InlineKeyboardMarkup(keyboard))
     del user_sessions[user_id]
 
-async def post_quiz_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handles actions after a quiz is finished."""
+async def review_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Display detailed review of quiz answers."""
     query = update.callback_query
     await query.answer()
+    
     data = query.data
     
-    if data == 'post_quiz_action_new':
-        await quiz(update, context)
-        try:
-            await query.delete_message()
-        except error.BadRequest:
-             pass
-    elif data == 'post_quiz_action_review':
-        await query.edit_message_text("👀 <b>Review Feature</b>\n\nThis feature is under construction! Please check back later or start a new quiz with /quiz.", parse_mode='HTML')
+    if data.startswith('review_start_'):
+        quiz_key = data.replace('review_start_', '')
+        
+        if quiz_key not in completed_quizzes:
+            await query.edit_message_text("❌ Quiz data not found. It may have been cleared.", parse_mode='HTML')
+            return
+        
+        # Start review from question 1
+        await show_review_question(query, quiz_key, 0)
+    
+    elif data.startswith('review_q_'):
+        parts = data.split('_')
+        quiz_key = parts[2]
+        q_index = int(parts[3])
+        
+        await show_review_question(query, quiz_key, q_index)
 
-# --- Callback Query Handlers ---
+async def show_review_question(query, quiz_key: str, q_index: int) -> None:
+    """Show a single question in review mode."""
+    if quiz_key not in completed_quizzes:
+        await query.edit_message_text("❌ Quiz data not found.", parse_mode='HTML')
+        return
+    
+    quiz_data = completed_quizzes[quiz_key]
+    questions = quiz_data['questions']
+    user_answers = quiz_data['user_answers']
+    
+    if q_index >= len(questions):
+        # Review complete
+        await query.edit_message_text(
+            f"✅ <b>Review Complete!</b>\n\n"
+            f"Final Score: <b>{quiz_data['score']}/{quiz_data['total']} ({quiz_data['score_pct']:.1f}%)</b>\n\n"
+            f"Keep practicing to improve! 💪",
+            parse_mode='HTML',
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🆕 Start New Quiz", callback_data='post_quiz_action_new')]])
+        )
+        return
+    
+    q_data = questions[q_index]
+    user_ans = user_answers[q_index]
+    correct_ans = q_data['answer']
+    
+    # Determine question type
+    q_type = "MCQ"
+    if q_data['q'].startswith('[MSQ]'):
+        q_type = "MSQ"
+    elif q_data['q'].startswith('[NAT]'):
+        q_type = "NAT"
+    
+    # Check if answer is correct
+    if isinstance(correct_ans, list):  # MSQ
+        is_correct = isinstance(user_ans, list) and sorted(user_ans) == sorted(correct_ans)
+    else:  # MCQ/NAT
+        is_correct = user_ans == correct_ans
+    
+    status_icon = "✅" if is_correct else "❌"
+    
+    # Build review text
+    review_text = f"<b>Review - Question {q_index + 1}/{len(questions)}</b> [{q_type}] {status_icon}\n\n"
+    review_text += f"{q_data['q']}\n\n"
+    
+    # Show options with indicators
+    for i, option in enumerate(q_data['options']):
+        prefix = ""
+        
+        if isinstance(correct_ans, list):  # MSQ
+            if i in correct_ans:
+                prefix = "✅ "
+            if isinstance(user_ans, list) and i in user_ans and i not in correct_ans:
+                prefix = "❌ "
+        else:  # MCQ/NAT
+            if i == correct_ans:
+                prefix = "✅ "
+            elif i == user_ans and i != correct_ans:
+                prefix = "❌ "
+        
+        review_text += f"{prefix}{chr(65+i)}. {option}\n"
+    
+    # Show user's answer
+    review_text += f"\n<b>Your Answer:</b> "
+    if user_ans is None or (isinstance(user_ans, list) and len(user_ans) == 0):
+        review_text += "Not answered"
+    elif isinstance(user_ans, list):
+        review_text += ", ".join([chr(65+i) for i in user_ans])
+    else:
+        review_text += chr(65+user_ans)
+    
+    # Show correct answer
+    review_text += f"\n<b>Correct Answer:</b> "
+    if isinstance(correct_ans, list):
+        review_text += ", ".join([chr(65+i) for i in correct_ans])
+    else:
+        review_text += chr(65+correct_ans)
+    
+    # Add explanation if available
+    if 'explanation' in q_data and q_data['explanation']:
+        review_text += f"\n\n💡 <b>Explanation:</b>\n{q_data['explanation']}"
+    
+    # Navigation buttons for review
+    keyboard = []
+    nav_buttons = []
+    
+    if q_index > 0:
+        nav_buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f'review_q_{quiz_key}_{q_index-1}'))
+    
+    if q_index < len(questions) - 1:
+        nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f'review_q_{quiz_key}_{q_index+1}'))
+    else:
+        nav_buttons.append(InlineKeyboardButton("🏁 Finish Review", callback_data=f'review_q_{quiz_key}_{len(questions)}'))
+    
+    if nav_buttons:
+        keyboard.append(nav_buttons)
+    
+    keyboard.append([InlineKeyboardButton("🆕 Start New Quiz", callback_data='post_quiz_action_new')])
+    
+    try:
+        await query.edit_message_text(
+            review_text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='HTML'
+        )
+    except error.BadRequest as e:
+        logger.error(f"Error updating review message: {e}")
 
-async def mode_or_topic_selected(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    🔥 FULLY AUTOMATIC - Handles mode, topic, AND special quiz selection.
-    NO CODE CHANGES needed when adding new quizzes!
-    """
+# --- Callback Query Router ---
+
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Main router for all callback queries."""
     query = update.callback_query
     await query.answer()
-    user = update.effective_user
-    user_id = user.id
+    
     data = query.data
-    selected_questions_list = []
-
-    if data == 'topics_redirect':
-        await topics(update, context)
-        return
-
-    # --- 1. Special Quiz Selection (/tests command) ---
-    if data.startswith('quiz_start_'):
-        quiz_id = data.split('quiz_start_', 1)[1]
-        selected_questions_list = load_questions_from_file(quiz_id)
+    user_id = query.from_user.id
+    
+    # Route to appropriate handler
+    if data.startswith('mode_select_'):
+        await handle_mode_selection(update, context)
+    elif data.startswith('topic_select_'):
+        await handle_topic_selection(update, context)
+    elif data.startswith('quiz_start_'):
+        await handle_quiz_start(update, context)
+    elif data.startswith('answer_') or data.startswith('quiz_nav_') or data == 'quiz_submit_final':
+        await handle_answer(update, context)
+    elif data.startswith('review_'):
+        await review_quiz(update, context)
+    elif data == 'post_quiz_action_new':
+        keyboard = [[InlineKeyboardButton(mode_data['label'], callback_data=f'mode_select_{mode_key}')] 
+                    for mode_key, mode_data in QUIZ_MODES.items()]
+        keyboard.append([InlineKeyboardButton("➡️ Choose Topic Instead", callback_data='topics_redirect')])
         
-        if not selected_questions_list:
+        await query.edit_message_text(
+            "🎮 <b>Select Quiz Mode:</b>\n\nChoose your next challenge:",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='HTML'
+        )
+    elif data == 'topics_redirect':
+        await show_topics_inline(query, context)
+
+async def handle_mode_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle quiz mode selection."""
+    query = update.callback_query
+    mode_key = query.data.replace('mode_select_', '')
+    
+    if mode_key not in QUIZ_MODES:
+        await query.edit_message_text("❌ Invalid mode selected.", parse_mode='HTML')
+        return
+    
+    # Get available quizzes
+    available = get_available_quizzes()
+    
+    if not available:
+        await query.edit_message_text(
+            "⚠️ No quizzes available!\n\nPlease add JSON files to the 'questions' folder.",
+            parse_mode='HTML'
+        )
+        return
+    
+    # Show quiz selection for this mode
+    sorted_quizzes = sorted(available.items(), key=lambda item: item[1])
+    keyboard = [[InlineKeyboardButton(label, callback_data=f'quiz_start_{quiz_id}_{mode_key}')] 
+                for quiz_id, label in sorted_quizzes[:15]]  # Limit to 15 to avoid message size issues
+    
+    keyboard.append([InlineKeyboardButton("⬅️ Back to Modes", callback_data='back_to_modes')])
+    
+    mode_info = QUIZ_MODES[mode_key]
+    await query.edit_message_text(
+        f"📚 <b>Select Quiz for {mode_info['label']}</b>\n\n"
+        f"Questions: {mode_info['num_q']}\n"
+        f"{'⏱️ Timed: ' + format_time(mode_info.get('time_limit', 0)) if mode_info['timed'] else '⏱️ Untimed'}",
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+
+async def handle_topic_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle topic selection and start quiz."""
+    query = update.callback_query
+    topic_id = query.data.replace('topic_select_', '')
+    
+    if topic_id == 'random':
+        # Random mix of questions from all topics
+        all_questions = []
+        available = get_available_quizzes()
+        
+        for quiz_id in available.keys():
+            if '/' not in quiz_id:  # Only root topics
+                questions = load_questions_from_file(quiz_id)
+                all_questions.extend(questions)
+        
+        if len(all_questions) < 10:
             await query.edit_message_text(
-                "⚠️ Could not load quiz questions!\n\n"
-                f"Quiz ID: {quiz_id}\n\n"
-                "Please check the file exists and is valid JSON.",
+                "⚠️ Not enough questions for random mix!\n\nAdd more topics to use this feature.",
                 parse_mode='HTML'
             )
             return
         
-        num_q = len(selected_questions_list)
-        config = QUIZ_MODES.get('simulation_20_720', QUIZ_MODES['full_20']) 
-        is_timed = config['timed']
-        time_limit = config.get('time_limit', 720)
-        mode = quiz_id
-        instant_feedback = config['feedback']
+        selected_questions = random.sample(all_questions, min(10, len(all_questions)))
+        quiz_mode = 'standard_10'
+    else:
+        # Load specific topic
+        selected_questions = load_questions_from_file(topic_id)
         
-    # --- 2. Topic Selection (/topics command) ---
-    elif data.startswith('topic_select_'):
-        topic = data.split('topic_select_', 1)[1]
-        
-        if topic == 'random':
-            # Load all available quizzes and mix them
-            all_quizzes = get_available_quizzes()
-            all_questions = []
-            for quiz_id in all_quizzes.keys():
-                questions = load_questions_from_file(quiz_id)
-                all_questions.extend(questions)
-            
-            if all_questions:
-                selected_questions_list = random.sample(all_questions, min(10, len(all_questions)))
-            mode = 'random_mix'
-        else:
-            # Load specific topic
-            selected_questions_list = load_questions_from_file(topic)
-            mode = f'topic_{topic}'
-        
-        num_q = len(selected_questions_list)
-        is_timed = False
-        time_limit = None
-        instant_feedback = True
-        
-    # --- 3. Mode Selection (/quiz command) ---
-    elif data.startswith('mode_select_'):
-        mode_key = data.split('mode_select_', 1)[1]
-        
-        if mode_key not in QUIZ_MODES:
-            await query.edit_message_text("❌ Invalid mode selected.", parse_mode='HTML')
+        if not selected_questions:
+            await query.edit_message_text(
+                f"❌ Could not load questions for topic: {topic_id}",
+                parse_mode='HTML'
+            )
             return
-            
-        config = QUIZ_MODES[mode_key]
-        num_q = config['num_q']
-        is_timed = config['timed']
-        time_limit = config.get('time_limit')
-        instant_feedback = config['feedback']
-        mode = mode_key
         
-        # Load random questions from all available quizzes
-        all_quizzes = get_available_quizzes()
-        all_questions = []
-        for quiz_id in all_quizzes.keys():
-            questions = load_questions_from_file(quiz_id)
-            all_questions.extend(questions)
-        
-        if all_questions:
-            selected_questions_list = random.sample(all_questions, min(num_q, len(all_questions)))
+        quiz_mode = 'standard_10'
+        selected_questions = random.sample(selected_questions, min(10, len(selected_questions)))
     
-    # --- Final Check & Session Initialization ---
-    if not selected_questions_list:
+    await start_quiz_session(query, context, selected_questions, quiz_mode, topic_id)
+
+async def handle_quiz_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle quiz start from tests menu."""
+    query = update.callback_query
+    data_parts = query.data.replace('quiz_start_', '').split('_')
+    
+    # Extract quiz_id and mode_key
+    if len(data_parts) > 1 and data_parts[-1] in QUIZ_MODES:
+        mode_key = data_parts[-1]
+        quiz_id = '_'.join(data_parts[:-1])
+    else:
+        mode_key = 'standard_10'
+        quiz_id = '_'.join(data_parts)
+    
+    # Load questions
+    all_questions = load_questions_from_file(quiz_id)
+    
+    if not all_questions:
         await query.edit_message_text(
-            "⚠️ Not enough questions available!\n\n"
-            "💡 Add more JSON files to the 'questions' folder.\n"
-            "Try /tests to see available quizzes.",
+            f"❌ Could not load quiz: {quiz_id}\n\nPlease check if the file exists.",
             parse_mode='HTML'
         )
         return
+    
+    # Select questions based on mode
+    mode_config = QUIZ_MODES[mode_key]
+    num_questions = min(mode_config['num_q'], len(all_questions))
+    selected_questions = random.sample(all_questions, num_questions)
+    
+    await start_quiz_session(query, context, selected_questions, mode_key, quiz_id)
 
-    # Limit questions if needed
-    if len(selected_questions_list) > num_q:
-        selected_questions_list = random.sample(selected_questions_list, num_q)
-
-    # Initialize Session
-    if user_id in user_sessions:
-        if user_sessions[user_id].get('timer_task'):
-            user_sessions[user_id]['timer_task'].cancel()
-        logger.info(f"User {user_id} started a new quiz, cancelling old session.")
-
+async def start_quiz_session(query, context: ContextTypes.DEFAULT_TYPE, questions: list, mode_key: str, quiz_id: str) -> None:
+    """Initialize and start a quiz session."""
+    user_id = query.from_user.id
+    user = query.from_user
+    
+    # Update leaderboard with username
+    if leaderboard_data[user_id]['username'] == 'N/A':
+        leaderboard_data[user_id]['username'] = user.username or user.first_name
+        leaderboard_data[user_id]['user_id'] = user_id
+    
+    mode_config = QUIZ_MODES[mode_key]
+    
+    # Create session
     user_sessions[user_id] = {
-        'questions': selected_questions_list,
+        'questions': questions,
+        'answers': [None] * len(questions),
         'current': 0,
-        'score': 0,
-        'answers': [None] * len(selected_questions_list), 
-        'is_timed': is_timed,
-        'time_limit': time_limit,
         'start_time': datetime.now(),
-        'mode': mode,
+        'is_timed': mode_config['timed'],
+        'time_limit': mode_config.get('time_limit', 0),
+        'instant_feedback': mode_config['feedback'],
+        'mode': mode_key,
+        'quiz_id': quiz_id,
         'chat_id': query.message.chat_id,
-        'instant_feedback': instant_feedback
+        'is_finished': False,
+        'timer_task': None
     }
     
-    leaderboard_data[user_id]['username'] = user.username or user.first_name
-    leaderboard_data[user_id]['user_id'] = user_id
-
-    text = f"🎯 <b>Quiz Started!</b>\n\n"
-    text += f"📝 Questions: {len(selected_questions_list)}\n"
-    if is_timed:
-        text += f"⏱️ Time Limit: {time_limit//60} minutes ({time_limit} seconds)\n"
-    if not instant_feedback:
-        text += "⚠️ <b>Simulation Mode:</b> No immediate feedback. Submit all answers at the end.\n"
-    text += f"\nGet ready! 💪"
+    # Start timer if timed quiz
+    if mode_config['timed']:
+        timer_task = asyncio.create_task(
+            quiz_timer(user_id, context, mode_config['time_limit'], query.message.chat_id)
+        )
+        user_sessions[user_id]['timer_task'] = timer_task
     
-    try:
-        await query.edit_message_text(text, parse_mode='HTML')
-    except error.BadRequest:
-        pass 
-    
-    # Start Timer and Send First Question
-    if is_timed:
-        task = asyncio.create_task(quiz_timer(user_id, context, time_limit, query.message.chat_id))
-        user_sessions[user_id]['timer_task'] = task
-        
-    await send_question(query.message, context, user_id)
-
-# --- Main Application Setup ---
-
-def main():
-    """Main function - optimized for deployment"""
-    if not BOT_TOKEN:
-        logger.error("❌ ERROR: The BOT_TOKEN environment variable is not set. The application cannot start.")
-        return
-
-    app = (
-        Application.builder()
-        .token(BOT_TOKEN)
-        .connect_timeout(30.0)
-        .read_timeout(30.0)
-        .write_timeout(30.0)
-        .build()
+    await query.edit_message_text(
+        f"🚀 <b>Quiz Starting!</b>\n\n"
+        f"Mode: {mode_config['label']}\n"
+        f"Questions: {len(questions)}\n"
+        f"{'Time Limit: ' + format_time(mode_config['time_limit']) if mode_config['timed'] else 'No Time Limit'}\n\n"
+        f"Good luck! 🍀",
+        parse_mode='HTML'
     )
     
-    # Command handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("quiz", quiz))
-    app.add_handler(CommandHandler("tests", special_tests))
-    app.add_handler(CommandHandler("topics", topics))
-    app.add_handler(CommandHandler("leaderboard", leaderboard_handler)) 
-    app.add_handler(CommandHandler("mystats", mystats)) 
-    app.add_handler(CommandHandler("help", help_command)) 
-    
-    # Callback handlers
-    app.add_handler(CallbackQueryHandler(mode_or_topic_selected, pattern='^mode_select_|^topic_select_|^quiz_start_|^topics_redirect')) 
-    app.add_handler(CallbackQueryHandler(handle_answer, pattern='^answer_submit_|^quiz_submit_final|^quiz_nav_'))
-    app.add_handler(CallbackQueryHandler(post_quiz_action, pattern='^post_quiz_action_'))
-    
-    print("🤖 Bot starting...")
-    print("🔥 AUTO-DISCOVERY ENABLED: Add JSON files to 'questions' folder - they appear automatically!")
-    
-    # Deployment Logic
-    if os.environ.get('RENDER'):
-        port = int(os.environ.get('PORT', 8080))
-        webhook_url = os.environ.get('RENDER_EXTERNAL_URL')
-        
-        if not webhook_url:
-            logger.error("❌ ERROR: RENDER_EXTERNAL_URL environment variable is missing for webhook setup.")
-            return
+    await asyncio.sleep(1)
+    await send_question(query.message, context, user_id)
 
-        if webhook_url.endswith('/'): webhook_url = webhook_url[:-1]
-        final_webhook_url = f"{webhook_url}/{BOT_TOKEN}" 
-
-        print(f"✅ Webhook mode active. Listening on port {port}.")
-        
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=port,
-            url_path=BOT_TOKEN,
-            webhook_url=final_webhook_url
+async def show_topics_inline(query, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show topics menu inline."""
+    available = get_available_quizzes()
+    
+    if not available:
+        await query.edit_message_text(
+            "⚠️ No topics found!\n\nAdd JSON files to 'questions' folder.",
+            parse_mode='HTML'
         )
-    else:
-        print("✅ Running! Press Ctrl+C to stop")
-        app.run_polling(allowed_updates=Update.ALL_TYPES)
+        return
+    
+    topics_dict = {k: v for k, v in available.items() if '/' not in k}
+    
+    if not topics_dict:
+        await query.edit_message_text(
+            "⚠️ No topics in root folder!\n\nUse /tests for all quizzes.",
+            parse_mode='HTML'
+        )
+        return
+    
+    sorted_topics = sorted(topics_dict.items(), key=lambda item: item[1])
+    keyboard = [[InlineKeyboardButton(label, callback_data=f'topic_select_{topic_id}')] 
+                for topic_id, label in sorted_topics]
+    
+    keyboard.append([InlineKeyboardButton("🎲 Random Mix (10Q)", callback_data='topic_select_random')])
+    
+    await query.edit_message_text(
+        f'📚 <b>Choose Topic:</b>\n\n✨ {len(topics_dict)} topic(s) available',
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+
+# --- Main Application ---
+
+def main() -> None:
+    """Start the bot."""
+    if not BOT_TOKEN:
+        logger.error("❌ BOT_TOKEN not found in environment variables!")
+        logger.error("Please set BOT_TOKEN environment variable and restart.")
+        return
+    
+    # Create application
+    application = Application.builder().token(BOT_TOKEN).build()
+    
+    # Register command handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("quiz", quiz))
+    application.add_handler(CommandHandler("tests", special_tests))
+    application.add_handler(CommandHandler("topics", topics))
+    application.add_handler(CommandHandler("leaderboard", leaderboard_handler))
+    application.add_handler(CommandHandler("mystats", mystats))
+    
+    # Register callback query handler
+    application.add_handler(CallbackQueryHandler(handle_callback))
+    
+    # Log startup
+    logger.info("🤖 Bot starting up...")
+    logger.info(f"📂 Quiz directory: {os.path.abspath(QUIZ_DATA_DIR)}")
+    
+    # Discover available quizzes on startup
+    available = get_available_quizzes()
+    logger.info(f"✅ Found {len(available)} quiz(es) on startup")
+    
+    # Run the bot
+    logger.info("✅ Bot is now running! Press Ctrl+C to stop.")
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
-    # Ensure the directory for new quizzes exists before starting the bot
-    os.makedirs(QUIZ_DATA_DIR, exist_ok=True)
     main()
-
