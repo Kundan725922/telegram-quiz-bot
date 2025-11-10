@@ -188,8 +188,7 @@ Ready to test your knowledge? Choose a quiz mode or a specific topic!
 /mystats - Your personalized analytics
 /help - Complete guide and info
 
-<b>🔥 NEW:</b> Just add JSON files to 'questions' folder - they'll appear automatically!
-
+<b>🔥 NEW:</b> ALL PYQS AVALIBLE SHORTLY year vise
 Start your preparation now! 🚀"""
     await update.message.reply_text(text, parse_mode='HTML')
 
@@ -699,3 +698,4 @@ if __name__ == '__main__':
     # Ensure the directory for new quizzes exists before starting the bot
     os.makedirs(QUIZ_DATA_DIR, exist_ok=True)
     main()
+
