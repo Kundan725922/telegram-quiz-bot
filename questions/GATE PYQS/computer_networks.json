@@ -1,0 +1,322 @@
+[
+  {
+    "q": "Consider a web browser that returns a web page containing N objects. The base HTML page itself is one object. Let the average size of an object be S bits and the round-trip time (RTT) between the browser and the server be R seconds. Assume that there is no other delay and the transmission rate is infinite. For non-persistent HTTP with M parallel connections, the total time (in seconds) to receive all objects is:",
+    "options": [
+      "(N/M + 1) × R",
+      "(N + M) × R",
+      "(⌈N/M⌉ + 1) × R",
+      "(N/M) × R"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Consider the following statements about the functionality of an email system:\nS1: An email client sends mail to its own mail server using SMTP\nS2: Mail is transferred from source mail server to destination mail server using SMTP\nS3: The destination mail client retrieves mail from its mail server using SMTP\n\nWhich of the above statements is/are CORRECT?",
+    "options": [
+      "S1 only",
+      "S1 and S2 only",
+      "S2 and S3 only",
+      "All of S1, S2, and S3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider a TCP connection in congestion avoidance phase. The current congestion window size is 16 KB and the previous congestion window size was 8 KB. Assume that each segment is of size 1 KB. If the sender receives 16 ACKs without any timeout or triple duplicate ACK, what will be the new congestion window size (in KB)?",
+    "options": [
+      "17 KB",
+      "18 KB",
+      "20 KB",
+      "24 KB"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider a TCP connection between a client and a server with the following specifications:\n- RTT = 6 ms\n- Bandwidth = 10^9 bits/sec\n- Maximum segment size = 1250 bytes\n\nWhat is the maximum TCP window size (in segments) to achieve 100% utilization of the bandwidth?",
+    "options": [
+      "600",
+      "500",
+      "625",
+      "750"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Consider a TCP connection where the sender has 10 segments to send but the receiver window size (rwnd) is 4 segments and the congestion window size (cwnd) is 6 segments. How many segments can the sender transmit?",
+    "options": [
+      "4",
+      "6",
+      "10",
+      "16"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Consider a long-lived TCP session with an end-to-end bandwidth of 1 Gbps (= 10^9 bits per second). The RTT is 100 ms and the maximum segment lifetime is 60 seconds. What is the minimum number of bits required for the sequence number field to prevent wraparound?",
+    "options": [
+      "29",
+      "30",
+      "31",
+      "32"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "Consider a network using IPv4 with CIDR. A router has the following entries in its routing table:\n\nDestination | Next Hop\n172.16.0.0/12 | A\n172.16.64.0/18 | B\n172.16.128.0/17 | C\n172.20.0.0/16 | D\n\nA packet with destination IP address 172.16.100.10 arrives at the router. To which next hop will the packet be forwarded?",
+    "options": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider the following statements about distance vector routing:\nS1: Distance vector routing is based on Bellman-Ford algorithm\nS2: Count-to-infinity problem can occur in distance vector routing\nS3: Distance vector routing requires global information\n\nWhich statements are CORRECT?",
+    "options": [
+      "S1 and S2 only",
+      "S2 and S3 only",
+      "S1 and S3 only",
+      "All of S1, S2, and S3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Consider a router with 3 input and 3 output ports. At a certain point of time, the status of input buffers is as follows:\n- Input Port 1: Packets destined for Output Port 1\n- Input Port 2: Packets destined for Output Port 2\n- Input Port 3: Packets destined for Output Port 1\n\nIf the router uses output queuing, which of the following is possible?",
+    "options": [
+      "Packets from Input Port 1 and Input Port 3 can be transmitted simultaneously",
+      "Only one packet can be transmitted at a time",
+      "All three packets can be transmitted simultaneously",
+      "Packets from Input Port 2 and Input Port 3 can be transmitted simultaneously"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider a bit stream 10011101 that needs to be transmitted using CRC with the generator polynomial x^3 + x + 1. What is the codeword that will be transmitted?",
+    "options": [
+      "10011101000",
+      "10011101011",
+      "10011101110",
+      "10011101111"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In a pure ALOHA system with offered load G = 0.5, what is the throughput?",
+    "options": [
+      "0.5e^(-1)",
+      "0.5e^(-0.5)",
+      "e^(-1)",
+      "0.184"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In a slotted ALOHA system, the throughput is maximized when the offered load G is:",
+    "options": [
+      "0.5",
+      "1",
+      "0.368",
+      "2"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A signal has a bandwidth of 4 kHz. According to Nyquist theorem, the minimum sampling rate (in samples per second) required to avoid aliasing is:",
+    "options": [
+      "4000",
+      "8000",
+      "12000",
+      "16000"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In Manchester encoding, the baud rate is:",
+    "options": [
+      "Equal to the bit rate",
+      "Half of the bit rate",
+      "Twice the bit rate",
+      "Four times the bit rate"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "In public key cryptography, which key is used to encrypt a message and which key is used to decrypt it?",
+    "options": [
+      "Encrypt with private key, decrypt with public key",
+      "Encrypt with public key, decrypt with private key",
+      "Encrypt with public key, decrypt with public key",
+      "Encrypt with private key, decrypt with private key"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In RSA algorithm, if p = 11 and q = 13, what is the value of φ(n)?",
+    "options": [
+      "120",
+      "132",
+      "143",
+      "156"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A DNS server has the IP address 8.8.8.8. A client machine sends a DNS query to this server. The query has 30 bytes in the question section and 12 bytes in the header section. Assume that the DNS query is sent using UDP over IPv4. What is the total number of bytes transmitted at the IP layer (including the IP header)? (IP header is 20 bytes, UDP header is 8 bytes)\n\nNote: This is a numerical answer type question. Enter your answer as a number.",
+    "options": [
+      "68",
+      "70",
+      "72",
+      "74"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider a Go-Back-N ARQ protocol with window size N = 7. If every 6th packet is lost and the timeout is such that at most 5 packets can be sent before timeout occurs, what is the efficiency of the protocol (as a percentage)?\n\nNote: This is a numerical answer type question. Enter your answer as a number.",
+    "options": [
+      "40",
+      "45",
+      "50",
+      "55"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "An organization has a network with the IP address 200.100.50.0/23. The organization wants to create 4 subnets. What will be the subnet mask for each subnet?\n\nNote: Answer in the form of the last octet value.",
+    "options": [
+      "255.255.250.0",
+      "255.255.252.0",
+      "255.255.254.0",
+      "255.255.248.0"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider a datagram network using 32-bit host addresses. Suppose a router has 3 links and the forwarding table has entry with prefix: 11100000 00000000 00000000. How many addresses are matched by this entry?\n\nNote: This is a numerical answer type question.",
+    "options": [
+      "128",
+      "256",
+      "512",
+      "1024"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A network has a subnet mask of 255.255.248.0. What is the maximum number of hosts that can be present in this subnet?\n\nNote: This is a numerical answer type question.",
+    "options": [
+      "1022",
+      "2046",
+      "4094",
+      "8190"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In a token ring network with 10 stations, the data rate is 10 Mbps and the token holding time is 5 ms. Each station has 4 frames to transmit, each of size 1000 bits. What is the approximate total time (in milliseconds) required for all stations to transmit all their frames?\n\nNote: This is a numerical answer type question. Choose the closest value.",
+    "options": [
+      "200",
+      "204",
+      "210",
+      "220"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Consider a LAN with 20 stations and a propagation delay of 2 μs. The frame size is 1000 bits and the transmission rate is 1 Mbps. Using CSMA/CD protocol, what is the minimum frame transmission time (in microseconds) required to detect collisions?",
+    "options": [
+      "2",
+      "4",
+      "6",
+      "8"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A network uses stop-and-wait protocol. The transmission rate is 1 Mbps, the propagation time is 20 ms, and the frame size is 10,000 bits. What is the link utilization (as a percentage)?\n\nNote: This is a numerical answer type question.",
+    "options": [
+      "10",
+      "15",
+      "20",
+      "25"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Consider a sliding window protocol with window size W = 7. If the round-trip time is 40 ms and the frame transmission time is 2 ms, what is the efficiency of the protocol (as a percentage)?\n\nNote: This is a numerical answer type question.",
+    "options": [
+      "60",
+      "65",
+      "70",
+      "75"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A channel has a bandwidth of 10 MHz and SNR of 30 dB. Using Shannon's capacity formula C = B log₂(1 + SNR), what is the maximum data rate (in Mbps) that can be achieved?\n\nNote: 30 dB means SNR = 1000. Choose the closest value.",
+    "options": [
+      "90",
+      "95",
+      "100",
+      "105"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A digital transmission system uses 8-level amplitude modulation. If the bit rate is 6 Mbps, what is the baud rate (in mega bauds)?\n\nNote: For 8 levels, each symbol carries 3 bits.",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "6"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A firewall is configured to block all incoming packets with SYN flag set but ACK flag not set. What type of attack is this configuration trying to prevent?",
+    "options": [
+      "DDoS attack",
+      "SYN flood attack",
+      "Man-in-the-middle attack",
+      "DNS spoofing attack"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Which of the following protocol(s) is/are application layer protocol(s)?\n\nSelect all that apply:",
+    "options": [
+      "TCP",
+      "HTTP",
+      "FTP",
+      "SMTP"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Which of the following statements is/are TRUE about IPv4 and IPv6?\n\nSelect all that apply:\nS1: IPv6 has a larger address space than IPv4\nS2: IPv6 uses ARP for address resolution\nS3: IPv6 header has a fixed length of 40 bytes\nS4: IPv4 header includes a checksum field but IPv6 header does not",
+    "options": [
+      "S1 only",
+      "S1 and S3 only",
+      "S1, S3 and S4 only",
+      "All statements"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Which of the following is/are correct about CSMA/CD?\n\nSelect all that apply:\nS1: It is used in Ethernet\nS2: Collision detection is done by monitoring the channel\nS3: It can be used in wireless networks\nS4: Minimum frame size depends on propagation delay",
+    "options": [
+      "S1 and S2 only",
+      "S1, S2 and S4 only",
+      "S2, S3 and S4 only",
+      "All statements"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Which of the following is/are true about digital signatures?\n\nSelect all that apply:\nS1: Digital signature provides authentication\nS2: Digital signature provides non-repudiation\nS3: Digital signature provides confidentiality\nS4: Digital signature uses public key cryptography",
+    "options": [
+      "S1 and S2 only",
+      "S1, S2 and S4 only",
+      "S2, S3 and S4 only",
+      "All statements"
+    ],
+    "answer": 1
+  }
+]
