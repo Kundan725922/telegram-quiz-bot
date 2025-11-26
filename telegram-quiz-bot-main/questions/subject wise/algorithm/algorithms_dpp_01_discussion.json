@@ -1,0 +1,98 @@
+[
+    {
+        "q": "Sort the functions in ascending order of asymptotic (Big-O) complexity:\n$f_1(n) = n$, $f_2(n) = 80$, $f_3(n) = n^{\\log n}$, $f_4(n) = (\\log(\\log n))^2$, $f_5(n) = (\\log n)^{\\log n}$",
+        "options": [
+            "$f_2(n), f_4(n), f_1(n), f_5(n), f_3(n)$",
+            "$f_2(n), f_1(n), f_4(n), f_5(n), f_3(n)$",
+            "$f_2(n), f_1(n), f_4(n), f_3(n), f_5(n)$",
+            "$f_3(n), f_1(n), f_4(n), f_3(n), f_2(n)$"
+        ],
+        "answer": 0,
+        "img_url": null,
+        "type": "MCQ"
+    },
+    {
+        "q": "Consider two functions $f(n) = 10n + 2\\log n$ and $g(n) = 5n + 2(\\log n)^2$. Which of the following is correct? (Note: This was a Multiple Select Question with A and B as correct options. $\\Theta$ is the tightest bound.)",
+        "options": [
+            "$f(n) = \\Theta(g(n))$",
+            "$f(n) = O(g(n))$",
+            "$f(n) = \\omega(g(n^2))$",
+            "None of the above"
+        ],
+        "answer": 0,
+        "img_url": null,
+        "type": "MSQ_SCQ_Adaptation"
+    },
+    {
+        "q": "The function $h(n) = f(n)/g(n)$ where $f(n) = \\sqrt{n}$ and $g(n) = n\\log n + n$. How many of the following relations are correct for $h(n)$? \nI. $h(n) = o(n^{-1/2})$, II. $h(n) = O(n^{-1/2})$, III. $h(n) = \\Omega(1/\\log n)$, IV. $h(n) = \\Theta(n^{-1/2})$",
+        "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+        ],
+        "answer": 1,
+        "img_url": null,
+        "type": "NAT_as_MCQ"
+    },
+    {
+        "q": "What is the worst-case time complexity of the following C-code? (The loop contains a 'break' statement.)\n<code>void foo (int n)\n{\n    int a = 1;\n    if (n == 1)\n        return;\n    for (a = 1; a <= n; a++)\n    {\n        printf(\"GATEWALLAH\");\n        break;\n    }\n}</code>",
+        "options": [
+            "$O(1)$",
+            "$O(n)$",
+            "$O(\\log n)$",
+            "$O(\\sqrt{n})$"
+        ],
+        "answer": 0,
+        "img_url": null,
+        "type": "MCQ"
+    },
+    {
+        "q": "Consider the asymptotic functions: $f_1 = 2^n$, $f_2 = (1.001)^n$, $f_3 = e^n$, $f_4 = n!$. Which of the following is the correct increasing order of growth?",
+        "options": [
+            "$f_3, f_4, f_1, f_2$",
+            "$f_2, f_4, f_1, f_3$",
+            "$f_3, f_2, f_1, f_4$",
+            "$f_2, f_1, f_3, f_4$"
+        ],
+        "answer": 3,
+        "img_url": null,
+        "type": "MCQ"
+    },
+    {
+        "q": "Consider the functions: $f_1(n) = 4^{2n}$, $f_2(n) = n!$, $f_3(n) = 4^{e^n}$, $f_4(n) = n^{n^n}$. Which of the following is/are correct? (This was a Multiple Select Question, B, C, and D are correct. We use B as the single answer index.)",
+        "options": [
+            "$f_1(n) = O(f_2(n))$",
+            "$f_1(n) = O(f_4(n))$",
+            "$f_1(n) = O(f_3(n))$",
+            "$f_2(n) = O(f_3(n))$"
+        ],
+        "answer": 1,
+        "img_url": null,
+        "type": "MSQ_SCQ_Adaptation"
+    },
+    {
+        "q": "Consider two functions $f_1(n) = n^{2^n}$ and $f_2(n) = n^{n^2}$. Which of the following is true?",
+        "options": [
+            "$f_1(n) = O(f_2(n))$",
+            "$f_1(n) = \\Theta(f_2(n))$",
+            "$f_1(n) = \\omega(f_2(n))$",
+            "None of these"
+        ],
+        "answer": 2,
+        "img_url": null,
+        "type": "MCQ"
+    },
+    {
+        "q": "The function $f(n) = \\sum_{i=1}^n i^3 = x$. Which of the following asymptotic relations for $x$ are correct?\nI. $\\Theta(n^4)$, II. $\\Theta(n^5)$, III. $O(n^5)$, IV. $\\Omega(n^3)$",
+        "options": [
+            "I, II, III",
+            "II, III, IV",
+            "I, II, III, IV",
+            "I, III, IV"
+        ],
+        "answer": 3,
+        "img_url": null,
+        "type": "MCQ_Set"
+    }
+]

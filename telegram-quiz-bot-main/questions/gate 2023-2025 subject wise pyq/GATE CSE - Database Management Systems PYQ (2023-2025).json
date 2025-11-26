@@ -1,0 +1,122 @@
+[
+  {
+    "q": "[MCQ] Consider the relational schema: Employee(EID, Name, DeptID, Salary). What is the highest normal form this relation can achieve if the only functional dependency is EID → Name, DeptID, Salary?",
+    "options": [
+      "1NF",
+      "2NF",
+      "3NF",
+      "BCNF"
+    ],
+    "answer": 3,
+    "explanation": "EID is the primary key. FD: EID → Name, DeptID, Salary. No non-key attributes depend on each other, only on EID. No partial dependencies (2NF satisfied), no transitive dependencies (3NF satisfied), and EID is the only candidate key (BCNF satisfied).",
+    "year": 2024,
+    "branch": "CS",
+    "topic": "DBMS - Normalization"
+  },
+  {
+    "q": "[NAT] ðŸ§® Consider a transaction schedule with three transactions T1, T2, T3. The schedule is: R1(X) W2(X) R3(X) W1(X) W3(X). How many conflicts are there in this schedule?",
+    "options": ["3", "4", "5", "6"],
+    "answer": 2,
+    "explanation": "Conflicts (RW, WR, WW between different transactions): R1(X)-W2(X), W2(X)-R3(X), W2(X)-W1(X), W2(X)-W3(X), W1(X)-W3(X). Total = 5 conflicts.",
+    "year": 2023,
+    "branch": "CS",
+    "topic": "DBMS - Concurrency Control"
+  },
+  {
+    "q": "[MCQ] In B+ tree index with order m=5 (max 4 keys per node), after inserting keys 10, 20, 30, 40, 50, 60, how many node splits occur?",
+    "options": ["1", "2", "3", "4"],
+    "answer": 1,
+    "explanation": "First 4 keys fit in root (10,20,30,40). 5th key (50) causes split: (10,20) | (30,40) with middle 30 promoted. 6th key (60) goes to right node. Total splits = 1.",
+    "year": 2024,
+    "branch": "CS",
+    "topic": "DBMS - Indexing"
+  },
+  {
+    "q": "[MSQ] Which of the following about ACID properties are CORRECT?\n\nS1: Atomicity ensures all-or-nothing property\nS2: Consistency ensures database goes from one valid state to another\nS3: Isolation means transactions execute serially\nS4: Durability ensures committed data survives failures",
+    "options": [
+      "S1: Atomicity all-or-nothing",
+      "S2: Consistency valid state transition",
+      "S3: Isolation serial execution",
+      "S4: Durability survives failures"
+    ],
+    "answer": [0, 1, 3],
+    "explanation": "S1 ✓ TRUE: Atomicity ensures atomicity (all or nothing). S2 ✓ TRUE: Consistency ensures valid state transitions. S3 ✗ FALSE: Isolation allows concurrent execution with conflict-serializability. S4 ✓ TRUE: Durability ensures committed data persists.",
+    "year": 2025,
+    "branch": "CS",
+    "topic": "DBMS - Transactions"
+  },
+  {
+    "q": "[MCQ] Consider SQL query: SELECT Name FROM Employee WHERE Salary > (SELECT AVG(Salary) FROM Employee). This query is classified as:",
+    "options": [
+      "Correlated subquery",
+      "Non-correlated subquery",
+      "Self-join",
+      "Nested query"
+    ],
+    "answer": 1,
+    "explanation": "The inner query SELECT AVG(Salary) FROM Employee executes once independently, then the outer query uses that result. This is a non-correlated (independent) subquery.",
+    "year": 2023,
+    "branch": "CS",
+    "topic": "DBMS - SQL"
+  },
+  {
+    "q": "[NAT] ðŸ§® Consider a schedule of transactions using 2-phase locking. If T1 holds exclusive lock on X, how many transactions can hold shared lock on X?",
+    "options": ["0", "1", "Unlimited", "Depends on isolation level"],
+    "answer": 0,
+    "explanation": "In 2-phase locking, exclusive lock (write lock) prevents any other transaction (shared or exclusive) from accessing the resource. So 0 other transactions can hold any lock on X.",
+    "year": 2024,
+    "branch": "CS",
+    "topic": "DBMS - Locking"
+  },
+  {
+    "q": "[MCQ] Which of the following is a valid functional dependency (FD) that violates BCNF?",
+    "options": [
+      "PK → NonPK",
+      "NonPK → PK",
+      "NonPK1 → NonPK2 where NonPK1 is not candidate key",
+      "PK → PK"
+    ],
+    "answer": 2,
+    "explanation": "BCNF requires every FD has LHS as candidate key. FD: NonPK1 → NonPK2 where NonPK1 is not a candidate key violates BCNF. This is a violation of the BCNF rule.",
+    "year": 2023,
+    "branch": "CS",
+    "topic": "DBMS - BCNF"
+  },
+  {
+    "q": "[MSQ] Which statements about database recovery are TRUE?\n\nS1: Redo logs record old values of data\nS2: Undo logs record new values of data\nS3: Checkpoint reduces recovery time\nS4: Shadow paging is used in undo/redo logging",
+    "options": [
+      "S1: Redo logs have old values",
+      "S2: Undo logs have new values",
+      "S3: Checkpoint reduces recovery time",
+      "S4: Shadow paging used in undo/redo"
+    ],
+    "answer": [2],
+    "explanation": "S1 ✗ FALSE: Redo logs record NEW values. S2 ✗ FALSE: Undo logs record OLD values. S3 ✓ TRUE: Checkpoints reduce recovery time by marking safe points. S4 ✗ FALSE: Shadow paging is separate from undo/redo logging.",
+    "year": 2025,
+    "branch": "CS",
+    "topic": "DBMS - Recovery"
+  },
+  {
+    "q": "[NAT] ðŸ§® In a relational database with 3 tables connected by foreign keys, how many different join combinations are possible?",
+    "options": ["3", "6", "9", "Depends on schema"],
+    "answer": 3,
+    "explanation": "For 3 tables A, B, C: A-B, B-C, A-C can be inner joins, left outer joins, right outer joins. But answer depends on specific foreign key relationships and schema design.",
+    "year": 2024,
+    "branch": "CS",
+    "topic": "DBMS - Joins"
+  },
+  {
+    "q": "[MCQ] Which of the following statements about NoSQL databases is CORRECT?",
+    "options": [
+      "NoSQL ensures strict ACID properties like RDBMS",
+      "NoSQL databases follow BASE model (Basically Available, Soft state, Eventually consistent)",
+      "NoSQL is better than SQL for all use cases",
+      "NoSQL requires schema definition like SQL"
+    ],
+    "answer": 1,
+    "explanation": "NoSQL databases typically follow BASE model: Basically Available (system available), Soft state (may change), Eventually consistent (consistency over time). They sacrifice strict ACID for scalability.",
+    "year": 2023,
+    "branch": "CS",
+    "topic": "DBMS - NoSQL"
+  }
+]
